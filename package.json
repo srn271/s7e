@@ -1,0 +1,37 @@
+{
+  "name": "s7e",
+  "version": "0.0.1",
+  "description": "A TypeScript library for de-/serialization of TypeScript classes to and from JSON.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "typescript",
+    "library"
+  ],
+  "author": "srn",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/srn271/s7e"
+  },
+  "bugs": {
+    "url": "https://github.com/srn271/s7e/issues"
+  },
+  "homepage": "https://github.com/srn271/s7e#readme",
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

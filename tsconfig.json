@@ -1,0 +1,22 @@
+{
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "**/*.test.ts"
+  ],
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2022",
+    "lib": [
+      "es2022"
+    ],
+    "declaration": true,
+    "strict": true,
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  }
+}
