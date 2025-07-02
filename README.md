@@ -21,18 +21,30 @@ npm install s7e
 ## 🛠️ Usage Example
 
 ```ts
-import { serialize, deserialize } from 's7e';
+import { S7e, JsonProperty } from 's7e';
 
 class User {
-  constructor(
-    public name: string,
-    public age: number
-  ) { }
+  @JsonProperty()
+  public name: string;
+
+  @JsonProperty()
+  public age: number;
+
+  // Not serializable properties
+  public password: string;
+  public internalId: number;
+
+  constructor(name: string, age: number, password?: string, internalId?: number) {
+    this.name = name;
+    this.age = age;
+    this.password = password ?? '';
+    this.internalId = internalId ?? 0;
+  }
 }
 
-const user = new User('Alice', 30);
-const json = serialize(user); // '{"name":"Alice","age":30}'
-const restored = deserialize(User, json); // User { name: 'Alice', age: 30 }
+const user = new User('Alice', 30, 'secret', 123);
+const json = S7e.serialize(user); // '{"name":"Alice","age":30}'
+const restored = S7e.deserialize(User, json); // User { name: 'Alice', age: 30, password: '', internalId: 0 }
 ```
 
 ## 🧪 Testing

@@ -1,3 +1,6 @@
+import { getJsonProperties } from './json-property';
+import { ObjectUtils } from './object-utils';
+
 /**
  * Utility class for serializing and deserializing TypeScript class instances to and from JSON.
  */
@@ -8,7 +11,14 @@ export class S7e {
    * @returns The JSON string representation of the instance.
    */
   public static serialize<T>(instance: T): string {
-    return JSON.stringify(instance);
+    if (!instance) return JSON.stringify(instance);
+    const ctor = instance.constructor;
+    const props = getJsonProperties(ctor);
+    const obj: Record<string, unknown> = {};
+    for (const key of props) {
+      obj[key] = (instance as any)[key];
+    }
+    return JSON.stringify(obj);
   }
 
   /**
@@ -21,6 +31,14 @@ export class S7e {
     cls: { new (...args: any[]): T },
     json: string
   ): T {
-    return Object.assign(new cls() as object, JSON.parse(json)) as T;
+    const obj: Record<string, unknown> = JSON.parse(json);
+    const properties: string[] = getJsonProperties(cls);
+    const instance: T = new cls();
+    for (const key of properties) {
+      if (ObjectUtils.hasOwnProperty(obj, key)) {
+        (instance as any)[key] = obj[key];
+      }
+    }
+    return instance;
   }
 }
