@@ -5,6 +5,7 @@
 ---
 
 ## 🚀 Features
+
 - Serialize and deserialize TypeScript classes with ease
 - Supports modern JavaScript (ES2022)
 - Works in both Node.js and browser environments
@@ -23,7 +24,10 @@ npm install s7e
 import { serialize, deserialize } from 's7e';
 
 class User {
-  constructor(public name: string, public age: number) {}
+  constructor(
+    public name: string,
+    public age: number
+  ) { }
 }
 
 const user = new User('Alice', 30);
@@ -44,9 +48,11 @@ npm run build
 ```
 
 ## 🤝 Contributing
+
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ## 📄 License
+
 MIT
 
 ---
