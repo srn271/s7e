@@ -24,17 +24,22 @@ npm install s7e
 import { S7e, JsonProperty } from 's7e';
 
 class User {
-  @JsonProperty()
+  @JsonProperty({ type: String })
   public name: string;
 
-  @JsonProperty()
+  @JsonProperty({ type: Number })
   public age: number;
 
   // Not serializable properties
   public password: string;
   public internalId: number;
 
-  constructor(name: string, age: number, password?: string, internalId?: number) {
+  constructor(
+    name: string,
+    age: number,
+    password?: string,
+    internalId?: number
+  ) {
     this.name = name;
     this.age = age;
     this.password = password ?? '';

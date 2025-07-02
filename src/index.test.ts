@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest';
-import { JsonProperty } from './json-property';
-import { S7e } from './s7e';
+import { S7e } from './core/s7e';
+import { JsonProperty } from './decorators/json-property';
 
 class User {
-  @JsonProperty()
+  @JsonProperty({ type: String })
   public name: string;
 
-  @JsonProperty()
+  @JsonProperty({ type: Number })
   public age: number;
 
   // Not serializable properties
@@ -40,10 +40,12 @@ test('serialize class instance', () => {
 });
 
 test('deserialize class instance', () => {
-  const json = '{"name":"Alice","age":30}';
+  // purposely use string and string-number to test type conversion
+  const json = '{"name":"Alice","age":"30"}';
   const restored = S7e.deserialize(User, json);
   expect(restored).toBeInstanceOf(User);
-  expect(restored).toMatchObject({ name: 'Alice', age: 30 });
+  expect(restored.name).toBe('Alice'); // String conversion
+  expect(restored.age).toBe(30); // Number conversion
   // Not serializable properties should have default values
   expect(restored.password).toBe('');
   expect(restored.internalId).toBe(0);

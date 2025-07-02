@@ -1,5 +1,10 @@
-import { getJsonProperties } from './json-property';
-import { ObjectUtils } from './object-utils';
+import {
+  getJsonProperties,
+  getJsonPropertyOptions,
+  JsonPropertyOptions,
+} from '../decorators/json-property';
+import { isNotNil } from '../utils/is-not-nil';
+import { ObjectUtils } from '../utils/object-utils';
 
 /**
  * Utility class for serializing and deserializing TypeScript class instances to and from JSON.
@@ -36,7 +41,16 @@ export class S7e {
     const instance: T = new cls();
     for (const key of properties) {
       if (ObjectUtils.hasOwnProperty(obj, key)) {
-        (instance as any)[key] = obj[key];
+        const options: JsonPropertyOptions | undefined = getJsonPropertyOptions(
+          cls,
+          key
+        );
+        const typeFn = options?.type ?? String;
+        const jsonValue: unknown = obj[key];
+        const value: unknown = isNotNil(jsonValue)
+          ? typeFn(jsonValue)
+          : jsonValue;
+        (instance as any)[key] = value;
       }
     }
     return instance;
