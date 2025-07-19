@@ -156,14 +156,13 @@ export class S7e {
     name: string
   ): void {
     if (TypeUtils.isArrayTypeConstructor(options.type)) {
-      S7e.validateArrayType(options, jsonValue, name);
+      S7e.validateArrayType(jsonValue, name);
     } else {
       S7e.validateSingleType(options, jsonValue, name);
     }
   }
 
   private static validateArrayType(
-    options: JsonPropertyOptions,
     jsonValue: unknown,
     name: string
   ): void {
