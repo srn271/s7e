@@ -9,7 +9,7 @@ export class User {
   public age: number;
 
   @JsonProperty({ type: String, optional: true })
-  public nickname?: string;
+  public nickname: string | undefined;
 
   @JsonProperty({ type: Boolean, optional: false })
   public active: boolean;

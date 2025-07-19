@@ -7,6 +7,9 @@
 ## 🚀 Features
 
 - Serialize and deserialize TypeScript classes with ease
+- Optional property support - Mark properties as optional for flexible serialization
+- Type validation - Automatic type checking during deserialization
+- Eager metadata loading - Fast property metadata access
 - Supports modern JavaScript (ES2022)
 - Works in both Node.js and browser environments
 - Zero dependencies for core functionality
@@ -20,6 +23,8 @@ npm install s7e
 
 ## 🛠️ Usage Example
 
+### Basic Usage
+
 ```ts
 import { S7e, JsonProperty } from 's7e';
 
@@ -30,6 +35,9 @@ class User {
   @JsonProperty({ type: Number })
   public age: number;
 
+  @JsonProperty({ type: Boolean })
+  public active: boolean;
+
   // Not serializable properties
   public password: string;
   public internalId: number;
@@ -37,20 +45,90 @@ class User {
   constructor(
     name: string,
     age: number,
+    active: boolean = true,
     password?: string,
     internalId?: number
   ) {
     this.name = name;
     this.age = age;
+    this.active = active;
     this.password = password ?? '';
     this.internalId = internalId ?? 0;
   }
 }
 
-const user = new User('Alice', 30, 'secret', 123);
-const json = S7e.serialize(user); // '{"name":"Alice","age":30}'
-const restored = S7e.deserialize(User, json); // User { name: 'Alice', age: 30, password: '', internalId: 0 }
+const user = new User('Alice', 30, true, 'secret', 123);
+const json = S7e.serialize(user); // '{"name":"Alice","age":30,"active":true}'
+const restored = S7e.deserialize(json, User); // User { name: 'Alice', age: 30, active: true, password: '', internalId: 0 }
 ```
+
+### Optional Properties
+
+```ts
+import { S7e, JsonProperty } from 's7e';
+
+class Profile {
+  @JsonProperty({ type: String })
+  public name: string;
+
+  @JsonProperty({ type: String, optional: true })
+  public nickname: string | undefined; // Optional property
+
+  @JsonProperty({ type: Number })
+  public age: number;
+
+  constructor(name?: string, age?: number, nickname?: string) {
+    this.name = name ?? '';
+    this.age = age ?? 0;
+    this.nickname = nickname;
+  }
+}
+
+// Serialization skips undefined optional properties
+const profile1 = new Profile('Bob', 25); // nickname is undefined
+const json1 = S7e.serialize(profile1); // '{"name":"Bob","age":25}'
+
+// Serialization includes defined optional properties
+const profile2 = new Profile('Alice', 30, 'Al');
+const json2 = S7e.serialize(profile2); // '{"name":"Alice","age":30,"nickname":"Al"}'
+
+// Deserialization works with missing optional properties
+const restored1 = S7e.deserialize('{"name":"Charlie","age":35}', Profile);
+// Profile { name: 'Charlie', age: 35, nickname: undefined }
+
+// Required properties must be present
+try {
+  S7e.deserialize('{"name":"Dave"}', Profile); // Missing required 'age'
+} catch (error) {
+  console.error(error.message); // "Missing required property 'age' in JSON during deserialization."
+}
+```
+
+## 📋 API Reference
+
+### `@JsonProperty(options?)`
+
+Decorator to mark a property for JSON serialization/deserialization.
+
+**Options:**
+- `type?: Function` - The constructor function for type validation (e.g., `String`, `Number`, `Boolean`)
+- `optional?: boolean` - Whether the property is optional (default: `false`)
+  - `true`: Property can be missing during deserialization, undefined values are skipped during serialization
+  - `false`: Property is required during deserialization
+
+### `S7e.serialize<T>(instance: T): string`
+
+Serializes a class instance to a JSON string.
+- Only properties marked with `@JsonProperty` are included
+- Undefined optional properties are automatically skipped
+
+### `S7e.deserialize<T>(json: string, cls: Constructor<T>): T`
+
+Deserializes a JSON string to a class instance.
+- Creates a new instance using the provided constructor
+- Only sets properties marked with `@JsonProperty`
+- Validates types if specified in the decorator
+- Throws error if required properties are missing
 
 ## 🧪 Testing
 
