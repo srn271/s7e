@@ -104,6 +104,71 @@ try {
 }
 ```
 
+### Array Support
+
+```ts
+import { S7e, JsonProperty } from 's7e';
+
+class BlogPost {
+  @JsonProperty({ type: String })
+  public title: string;
+
+  @JsonProperty({ type: [String] })
+  public tags: string[];
+
+  @JsonProperty({ type: [Number] })
+  public ratings: number[];
+
+  constructor() {
+    this.title = '';
+    this.tags = [];
+    this.ratings = [];
+  }
+}
+
+// Arrays of nested objects
+class Comment {
+  @JsonProperty({ type: String })
+  public author: string;
+
+  @JsonProperty({ type: String })
+  public content: string;
+
+  constructor(author?: string, content?: string) {
+    this.author = author ?? '';
+    this.content = content ?? '';
+  }
+}
+
+class Article {
+  @JsonProperty({ type: String })
+  public title: string;
+
+  @JsonProperty({ type: [Comment] })
+  public comments: Comment[];
+
+  constructor() {
+    this.title = '';
+    this.comments = [];
+  }
+}
+
+// Usage
+const article = new Article();
+article.title = 'My Article';
+article.comments = [
+  new Comment('Alice', 'Great post!'),
+  new Comment('Bob', 'Thanks for sharing!')
+];
+
+const json = S7e.serialize(article);
+// '{"title":"My Article","comments":[{"author":"Alice","content":"Great post!"},{"author":"Bob","content":"Thanks for sharing!"}]}'
+
+const restored = S7e.deserialize(json, Article);
+// Article with properly deserialized Comment instances
+console.log(restored.comments[0] instanceof Comment); // true
+```
+
 ## 📋 API Reference
 
 ### `@JsonProperty(options?)`
@@ -111,7 +176,9 @@ try {
 Decorator to mark a property for JSON serialization/deserialization.
 
 **Options:**
-- `type?: Function` - The constructor function for type validation (e.g., `String`, `Number`, `Boolean`)
+- `type?: TypeConstructor | [TypeConstructor]` - The type constructor for this property
+  - Single values: `String`, `Number`, `Boolean`, or custom class constructor
+  - Arrays: `[String]`, `[Number]`, `[Boolean]`, or `[CustomClass]`
 - `optional?: boolean` - Whether the property is optional (default: `false`)
   - `true`: Property can be missing during deserialization, undefined values are skipped during serialization
   - `false`: Property is required during deserialization
