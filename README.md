@@ -29,13 +29,13 @@ npm install s7e
 import { S7e, JsonProperty } from 's7e';
 
 class User {
-  @JsonProperty({ type: String })
+  @JsonProperty({ name: 'name', type: String })
   public name: string;
 
-  @JsonProperty({ type: Number })
+  @JsonProperty({ name: 'age', type: Number })
   public age: number;
 
-  @JsonProperty({ type: Boolean })
+  @JsonProperty({ name: 'active', type: Boolean })
   public active: boolean;
 
   // Not serializable properties
@@ -68,13 +68,13 @@ const restored = S7e.deserialize(json, User); // User { name: 'Alice', age: 30, 
 import { S7e, JsonProperty } from 's7e';
 
 class Profile {
-  @JsonProperty({ type: String })
+  @JsonProperty({ name: 'name', type: String })
   public name: string;
 
-  @JsonProperty({ type: String, optional: true })
+  @JsonProperty({ name: 'nickname', type: String, optional: true })
   public nickname: string | undefined; // Optional property
 
-  @JsonProperty({ type: Number })
+  @JsonProperty({ name: 'age', type: Number })
   public age: number;
 
   constructor(name?: string, age?: number, nickname?: string) {
@@ -110,13 +110,13 @@ try {
 import { S7e, JsonProperty } from 's7e';
 
 class BlogPost {
-  @JsonProperty({ type: String })
+  @JsonProperty({ name: 'title', type: String })
   public title: string;
 
-  @JsonProperty({ type: [String] })
+  @JsonProperty({ name: 'tags', type: [String] })
   public tags: string[];
 
-  @JsonProperty({ type: [Number] })
+  @JsonProperty({ name: 'ratings', type: [Number] })
   public ratings: number[];
 
   constructor() {
@@ -128,10 +128,10 @@ class BlogPost {
 
 // Arrays of nested objects
 class Comment {
-  @JsonProperty({ type: String })
+  @JsonProperty({ name: 'author', type: String })
   public author: string;
 
-  @JsonProperty({ type: String })
+  @JsonProperty({ name: 'content', type: String })
   public content: string;
 
   constructor(author?: string, content?: string) {
@@ -141,10 +141,10 @@ class Comment {
 }
 
 class Article {
-  @JsonProperty({ type: String })
+  @JsonProperty({ name: 'title', type: String })
   public title: string;
 
-  @JsonProperty({ type: [Comment] })
+  @JsonProperty({ name: 'comments', type: [Comment] })
   public comments: Comment[];
 
   constructor() {
@@ -171,12 +171,13 @@ console.log(restored.comments[0] instanceof Comment); // true
 
 ## 📋 API Reference
 
-### `@JsonProperty(options?)`
+### `@JsonProperty(options)`
 
 Decorator to mark a property for JSON serialization/deserialization.
 
 **Options:**
-- `type?: TypeConstructor | [TypeConstructor]` - The type constructor for this property
+- `name: string` - **Required**. The JSON property name for serialization/deserialization (mandatory for minification compatibility)
+- `type: TypeConstructor | [TypeConstructor]` - **Required**. The type constructor for this property
   - Single values: `String`, `Number`, `Boolean`, or custom class constructor
   - Arrays: `[String]`, `[Number]`, `[Boolean]`, or `[CustomClass]`
 - `optional?: boolean` - Whether the property is optional (default: `false`)
