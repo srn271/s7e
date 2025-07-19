@@ -22,8 +22,10 @@ export class S7e {
    * @returns The JSON string representation of the instance.
    */
   public static serialize<T>(instance: T): string {
-    if (!instance) return JSON.stringify(instance);
-    const ctor: ClassConstructor = instance.constructor as ClassConstructor;
+    if (isNil(instance)) {
+      return JSON.stringify(instance);
+    }
+    const ctor: ClassConstructor = (instance as NonNullable<T>).constructor as ClassConstructor;
     const properties: PropertyMapping[] = getJsonProperties(ctor);
     const obj: Record<string, unknown> = {};
     for (const property of properties) {
