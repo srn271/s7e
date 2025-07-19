@@ -1,17 +1,21 @@
 import {
-  ClassConstructor,
   getJsonProperties,
   getJsonPropertyOptions,
-  JsonPropertyOptions,
-  TypeConstructor,
 } from '../decorators/json-property';
+import type { JsonPropertyOptions } from '../models/json-property-options.model';
+import type { ClassConstructor } from '../types/class-constructor.type';
+import type { PropertyMapping } from '../types/property-mapping.type';
+import type { TypeConstructor } from '../types/type-constructor.type';
+import { isNil } from '../utils/is-nil';
 import { isNotNil } from '../utils/is-not-nil';
 import { ObjectUtils } from '../utils/object-utils';
+import { TypeUtils } from '../utils/type.utils';
 
 /**
  * Utility class for serializing and deserializing TypeScript class instances to and from JSON.
  */
 export class S7e {
+
   /**
    * Serialize a class instance to a JSON string.
    * @param instance - The class instance to serialize.
@@ -19,17 +23,17 @@ export class S7e {
    */
   public static serialize<T>(instance: T): string {
     if (!instance) return JSON.stringify(instance);
-    const ctor = instance.constructor as ClassConstructor;
-    const props = getJsonProperties(ctor);
+    const ctor: ClassConstructor = instance.constructor as ClassConstructor;
+    const properties: PropertyMapping[] = getJsonProperties(ctor);
     const obj: Record<string, unknown> = {};
-    for (const key of props) {
-      const options: JsonPropertyOptions | undefined = getJsonPropertyOptions(ctor, key);
-      const value = (instance as any)[key];
+    for (const property of properties) {
+      const options: JsonPropertyOptions | undefined = getJsonPropertyOptions(ctor, property.name);
+      const value: unknown = (instance as any)[property.name];
       if (options?.optional && typeof value === 'undefined') {
         continue; // skip undefined optional properties
       }
 
-      obj[key] = S7e.serializeValue(options, value);
+      obj[property.jsonName] = S7e.serializeValue(options, value);
     }
     return JSON.stringify(obj);
   }
@@ -39,7 +43,7 @@ export class S7e {
     value: unknown
   ): unknown {
     // Handle array serialization
-    if (Array.isArray(options?.type) && Array.isArray(value)) {
+    if (options?.type && TypeUtils.isArrayTypeConstructor(options.type) && Array.isArray(value)) {
       return value.map((item: unknown): unknown => {
         // If the array item is an object with a serialize method (another class), serialize it
         if (isNotNil(item) && typeof item === 'object' && typeof item.constructor === 'function'
@@ -66,41 +70,52 @@ export class S7e {
     cls: ClassConstructor<T>
   ): T {
     const obj: Record<string, unknown> = JSON.parse(json);
-    const properties: string[] = getJsonProperties(cls);
+    const properties: PropertyMapping[] = getJsonProperties(cls);
     const instance: T = new cls();
-    for (const key of properties) {
-      const options: JsonPropertyOptions | undefined = getJsonPropertyOptions(cls, key);
-      if (!ObjectUtils.hasOwnProperty(obj, key)) {
+    for (const property of properties) {
+      const options: JsonPropertyOptions | undefined = getJsonPropertyOptions(cls, property.name);
+      if (isNil(options)) {
+        throw new Error(`No options found for property '${property.name}' in class '${cls.name}'`);
+      }
+      if (!ObjectUtils.hasOwnProperty(obj, property.jsonName)) {
         // If property is optional and not present in JSON, skip assignment (use default)
-        if (options?.optional === true) {
+        if (options.optional === true) {
           continue;
         }
         // If not optional, throw error
-        throw new Error(`Missing required property '${key}' in JSON during deserialization.`);
+        throw new Error(`Missing required property '${property.jsonName}' in JSON during deserialization.`);
       }
       // If property is present in JSON, always deserialize, even if optional
-      const jsonValue: unknown = obj[key];
-      S7e.validateType(options, jsonValue, key);
+      const jsonValue: unknown = obj[property.jsonName];
+      S7e.validateType(options, jsonValue, property.jsonName);
 
       const value = S7e.deserializeValue(options, jsonValue);
-      (instance as any)[key] = value;
+      (instance as any)[property.name] = value;
     }
     return instance;
   }
 
   private static deserializeValue(
-    options: JsonPropertyOptions | undefined,
+    options: JsonPropertyOptions,
     jsonValue: unknown
   ): unknown {
     // Handle array deserialization
-    if (Array.isArray(options?.type) && Array.isArray(jsonValue)) {
-      const elementType = options.type[0];
-      return jsonValue.map(item => {
-        if (isNotNil(item) && elementType) {
+    if (TypeUtils.isArrayTypeConstructor(options.type)) {
+      if (!Array.isArray(jsonValue)) {
+        throw new TypeError(
+          `Type mismatch for property '${options.name}': expected Array, got ${typeof jsonValue}`
+        );
+      }
+      const elementType: TypeConstructor = options.type[0];
+      return jsonValue.map((item: unknown): unknown => {
+        if (isNotNil(item) && isNotNil(elementType)) {
           // If elementType is a class constructor with JsonProperty decorators, deserialize as object
-          if (S7e.isClassConstructor(elementType) &&
+          if (TypeUtils.isClassConstructor(elementType) &&
             getJsonProperties(elementType).length > 0) {
-            return S7e.deserialize(JSON.stringify(item), elementType);
+            return S7e.deserialize(
+              JSON.stringify(item),
+              elementType as ClassConstructor<object>
+            );
           }
           // Otherwise use the type constructor for primitive types
           return S7e.convertValue(elementType, item);
@@ -110,82 +125,78 @@ export class S7e {
     }
 
     // Regular single value deserialization
-    const typeFn = Array.isArray(options?.type) ? String : (options?.type ?? String);
-    return isNotNil(jsonValue) ? S7e.convertValue(typeFn, jsonValue) : jsonValue;
+    const typeFn: TypeConstructor = TypeUtils.getTypeConstructor(options.type);
+
+    return isNotNil(jsonValue)
+      ? S7e.convertValue(typeFn, jsonValue)
+      : jsonValue;
   }
 
-  private static convertValue(typeConstructor: TypeConstructor, value: unknown): unknown {
+  private static convertValue(
+    type: TypeConstructor,
+    value: unknown
+  ): unknown {
     // Handle primitive type conversions
-    if (typeConstructor === String) {
+    if (type === String) {
       return String(value);
-    } else if (typeConstructor === Number) {
+    } else if (type === Number) {
       return Number(value);
-    } else if (typeConstructor === Boolean) {
+    } else if (type === Boolean) {
       return Boolean(value);
     }
     // For class constructors, we should not convert here as they need proper deserialization
     return value;
   }
 
-  private static isClassConstructor(type: TypeConstructor): type is ClassConstructor {
-    return type !== String && type !== Number && type !== Boolean;
-  }
-
   private static validateType(
-    options: JsonPropertyOptions | undefined,
+    options: JsonPropertyOptions,
     jsonValue: unknown,
-    key: string
+    name: string
   ): void {
-    if (!isNotNil(jsonValue)) {
-      return;
+    if (TypeUtils.isArrayTypeConstructor(options.type)) {
+      S7e.validateArrayType(options, jsonValue, name);
+    } else {
+      S7e.validateSingleType(options, jsonValue, name);
     }
-
-    // Handle array validation
-    if (Array.isArray(options?.type)) {
-      S7e.validateArrayType(jsonValue, key);
-      return;
-    }
-
-    // Handle single value validation
-    S7e.validateSingleType(options, jsonValue, key);
   }
 
-  private static validateArrayType(jsonValue: unknown, key: string): void {
+  private static validateArrayType(
+    options: JsonPropertyOptions,
+    jsonValue: unknown,
+    name: string
+  ): void {
     if (!Array.isArray(jsonValue)) {
+      const actualType = TypeUtils.getTypeFromValue(jsonValue);
+      const actualTypeName = TypeUtils.getTypeName(actualType);
       throw new TypeError(
-        `Type mismatch for property '${key}': expected Array, got ${typeof jsonValue}`
+        `Type mismatch for property '${name}': expected Array, got ${actualTypeName}`
       );
     }
+    // No need to validate individual array items here - they are validated during deserialization
   }
 
   private static validateSingleType(
-    options: JsonPropertyOptions | undefined,
+    options: JsonPropertyOptions,
     jsonValue: unknown,
-    key: string
+    name: string
   ): void {
-    if (!isNotNil(options?.type) || Array.isArray(options?.type)) {
+    if (TypeUtils.isArrayTypeConstructor(options.type)) {
+      throw new TypeError(
+        `Type mismatch for property '${name}': expected single value, got Array`
+      );
+    }
+
+    if (isNil(jsonValue)) {
+      // Skip validation for null/undefined - let the deserializeValue handle conversion
       return;
     }
 
-    const expectedType = options.type;
-    let actualType: TypeConstructor | undefined;
-
-    // Get the actual type of the JSON value
-    if (typeof jsonValue === 'string') {
-      actualType = String;
-    } else if (typeof jsonValue === 'number') {
-      actualType = Number;
-    } else if (typeof jsonValue === 'boolean') {
-      actualType = Boolean;
-    } else if (isNotNil(jsonValue) && typeof jsonValue === 'object' && jsonValue.constructor) {
-      actualType = jsonValue.constructor as ClassConstructor;
-    }
-
-    if (isNotNil(actualType) && actualType !== expectedType) {
-      throw new TypeError(
-        `Type mismatch for property '${key}': expected ${expectedType.name}, got ${actualType.name}`
-      );
-    }
+    TypeUtils.validateType(
+      options.type,
+      jsonValue,
+      options.optional ?? false,
+      name
+    );
   }
 
 }

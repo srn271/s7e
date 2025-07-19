@@ -4,10 +4,10 @@ import { JsonProperty, getJsonProperties, getJsonPropertyOptions } from '../deco
 describe('Metadata Management', () => {
   test('should make metadata available immediately after class definition', () => {
     class TestClass {
-      @JsonProperty({ type: String })
+      @JsonProperty({ name: 'name', type: String })
       public name: string;
 
-      @JsonProperty({ type: Number, optional: true })
+      @JsonProperty({ name: 'age', type: Number, optional: true })
       public age?: number;
 
       constructor(name?: string, age?: number) {
@@ -18,18 +18,21 @@ describe('Metadata Management', () => {
 
     // Check that metadata is available immediately without creating an instance
     const properties = getJsonProperties(TestClass);
-    expect(properties).toEqual(['name', 'age']);
+    expect(properties).toEqual([
+      { name: 'name', jsonName: 'name' },
+      { name: 'age', jsonName: 'age' }
+    ]);
 
     const nameOptions = getJsonPropertyOptions(TestClass, 'name');
-    expect(nameOptions).toEqual({ optional: false, type: String });
+    expect(nameOptions).toEqual({ name: 'name', optional: false, type: String });
 
     const ageOptions = getJsonPropertyOptions(TestClass, 'age');
-    expect(ageOptions).toEqual({ optional: true, type: Number });
+    expect(ageOptions).toEqual({ name: 'age', optional: true, type: Number });
   });
 
   test('should persist metadata across multiple instances', () => {
     class TestClass {
-      @JsonProperty({ type: String })
+      @JsonProperty({ name: 'name', type: String })
       public name: string;
 
       constructor(name?: string) {
@@ -43,10 +46,10 @@ describe('Metadata Management', () => {
 
     // Metadata should still be available and consistent
     const properties = getJsonProperties(TestClass);
-    expect(properties).toEqual(['name']);
+    expect(properties).toEqual([{ name: 'name', jsonName: 'name' }]);
 
     const nameOptions = getJsonPropertyOptions(TestClass, 'name');
-    expect(nameOptions).toEqual({ optional: false, type: String });
+    expect(nameOptions).toEqual({ name: 'name', optional: false, type: String });
 
     // Instances should work correctly
     expect(instance1.name).toBe('test1');
@@ -55,10 +58,10 @@ describe('Metadata Management', () => {
 
   test('should work with classes that have required constructor parameters', () => {
     class RequiredParamsClass {
-      @JsonProperty({ type: String })
+      @JsonProperty({ name: 'name', type: String })
       public name: string;
 
-      @JsonProperty({ type: Number, optional: true })
+      @JsonProperty({ name: 'age', type: Number, optional: true })
       public age?: number;
 
       constructor(name: string, age?: number) {
@@ -69,12 +72,15 @@ describe('Metadata Management', () => {
 
     // Metadata should be available even before creating an instance
     const properties = getJsonProperties(RequiredParamsClass);
-    expect(properties).toEqual(['name', 'age']);
+    expect(properties).toEqual([
+      { name: 'name', jsonName: 'name' },
+      { name: 'age', jsonName: 'age' }
+    ]);
 
     const nameOptions = getJsonPropertyOptions(RequiredParamsClass, 'name');
-    expect(nameOptions).toEqual({ optional: false, type: String });
+    expect(nameOptions).toEqual({ name: 'name', optional: false, type: String });
 
     const ageOptions = getJsonPropertyOptions(RequiredParamsClass, 'age');
-    expect(ageOptions).toEqual({ optional: true, type: Number });
+    expect(ageOptions).toEqual({ name: 'age', optional: true, type: Number });
   });
 });

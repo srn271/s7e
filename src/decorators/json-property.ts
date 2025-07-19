@@ -1,14 +1,18 @@
-import { isNotNil } from "../utils/is-not-nil";
-
-// Type definitions for better type safety
-export type PrimitiveConstructor = StringConstructor | NumberConstructor | BooleanConstructor;
-export type ClassConstructor<T = any> = new (...args: any[]) => T;
-export type TypeConstructor = PrimitiveConstructor | ClassConstructor;
+import type { JsonPropertyOptions } from '../models/json-property-options.model';
+import type { ClassConstructor } from '../types/class-constructor.type';
+import type { PropertyMapping } from '../types/property-mapping.type';
+import { isNil } from '../utils/is-nil';
+import { isNotNil } from '../utils/is-not-nil';
 
 type JsonPropertyMetadata = {
-  properties: string[];
+  properties: Array<PropertyMapping>;
   options: Record<string, JsonPropertyOptions>;
 };
+
+/**
+ * This metadata registry is used to store property keys and options for JSON serialization/deserialization.
+ */
+const METADATA_REGISTRY: WeakMap<ClassConstructor, JsonPropertyMetadata> = new WeakMap<ClassConstructor, JsonPropertyMetadata>();
 
 /**
  * Decorator to mark a property for JSON serialization/deserialization.
@@ -16,45 +20,26 @@ type JsonPropertyMetadata = {
  * Stores property keys in metadata registry.
  *
  * @param options Configuration options for the property
+ * @param options.name The JSON property name (mandatory for minification compatibility)
  * @param options.type Type constructor for the property (TypeConstructor for single values, [TypeConstructor] for arrays)
  * @param options.optional Whether the property is optional (default: false)
  *
  * @example
  * ```typescript
  * class User {
- *   @JsonProperty({ type: String })
+ *   @JsonProperty({ name: 'userName', type: String })
  *   name: string;
  *
- *   @JsonProperty({ type: [String] })
+ *   @JsonProperty({ name: 'userTags', type: [String] })
  *   tags: string[];
  *
- *   @JsonProperty({ type: [Address] })
+ *   @JsonProperty({ name: 'addresses', type: [Address] })
  *   addresses: Address[];
  * }
  * ```
  */
-
-// This metadata registry is used to store property keys and options for JSON serialization/deserialization.
-const METADATA_REGISTRY: WeakMap<ClassConstructor, JsonPropertyMetadata> = new WeakMap<ClassConstructor, JsonPropertyMetadata>();
-
-export interface JsonPropertyOptions {
-  /**
-   * The type constructor for this property.
-   * - For single values: String, Number, Boolean, or a custom class constructor
-   * - For arrays: [String], [Number], [Boolean], or [CustomClass]
-   */
-  type?: TypeConstructor | [TypeConstructor];
-
-  /**
-   * If true, property is optional for serialization/deserialization.
-   * Optional properties that are undefined will be skipped during serialization,
-   * and missing optional properties during deserialization will retain their default values.
-   */
-  optional?: boolean;
-}
-
 export function JsonProperty(
-  options?: JsonPropertyOptions
+  options: JsonPropertyOptions
 ): (value: unknown, context: ClassFieldDecoratorContext) => void {
   return function (value: unknown, context: ClassFieldDecoratorContext<unknown, unknown>): void {
     context.addInitializer(function () {
@@ -63,15 +48,21 @@ export function JsonProperty(
         METADATA_REGISTRY.set(ctor, { properties: [], options: {} });
       }
       const metadata: JsonPropertyMetadata = METADATA_REGISTRY.get(ctor)!;
-      if (!metadata.properties.includes(context.name as string)) {
-        metadata.properties.push(context.name as string);
-        metadata.options[context.name as string] = { optional: false, ...options };
+      const name: string = context.name as string;
+      const existingProperty: PropertyMapping | undefined = metadata.properties.find(p => p.name === name);
+
+      if (isNil(existingProperty)) {
+        metadata.properties.push({
+          name,
+          jsonName: options.name
+        });
+        metadata.options[name] = { optional: false, ...options };
       }
     });
   };
 }
 
-export function getJsonProperties(ctor: ClassConstructor): string[] {
+export function getJsonProperties(ctor: ClassConstructor): Array<PropertyMapping> {
   ensureMetadataInitialized(ctor);
   const metadata: JsonPropertyMetadata | undefined = METADATA_REGISTRY.get(ctor);
   return isNotNil(metadata)
@@ -81,12 +72,12 @@ export function getJsonProperties(ctor: ClassConstructor): string[] {
 
 export function getJsonPropertyOptions(
   ctor: ClassConstructor,
-  key: string
+  name: string
 ): JsonPropertyOptions | undefined {
   ensureMetadataInitialized(ctor);
   const metadata: JsonPropertyMetadata | undefined = METADATA_REGISTRY.get(ctor);
   return isNotNil(metadata)
-    ? metadata.options[key]
+    ? metadata.options[name]
     : undefined;
 }
 

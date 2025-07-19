@@ -2,16 +2,16 @@ import { JsonProperty } from '../decorators/json-property';
 
 export class User {
 
-  @JsonProperty({ type: String })
+  @JsonProperty({ name: 'name', type: String })
   public name: string;
 
-  @JsonProperty({ type: Number })
+  @JsonProperty({ name: 'age', type: Number })
   public age: number;
 
-  @JsonProperty({ type: String, optional: true })
+  @JsonProperty({ name: 'nickname', type: String, optional: true })
   public nickname: string | undefined;
 
-  @JsonProperty({ type: Boolean, optional: false })
+  @JsonProperty({ name: 'active', type: Boolean, optional: false })
   public active: boolean;
 
   // Not serializable properties

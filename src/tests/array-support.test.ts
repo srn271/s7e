@@ -132,7 +132,7 @@ describe('Array Support', () => {
       });
 
       expect(() => S7e.deserialize(json, ArrayTestClass)).toThrowError(
-        /Type mismatch for property 'stringArray': expected Array, got string/
+        /Type mismatch for property 'stringArray': expected Array, got String/
       );
     });
 

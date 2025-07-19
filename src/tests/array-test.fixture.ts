@@ -1,16 +1,16 @@
 import { JsonProperty } from '../decorators/json-property';
 
 export class ArrayTestClass {
-  @JsonProperty({ type: [String] })
+  @JsonProperty({ name: 'stringArray', type: [String] })
   public stringArray: string[];
 
-  @JsonProperty({ type: [Number] })
+  @JsonProperty({ name: 'numberArray', type: [Number] })
   public numberArray: number[];
 
-  @JsonProperty({ type: [Boolean] })
+  @JsonProperty({ name: 'booleanArray', type: [Boolean] })
   public booleanArray: boolean[];
 
-  @JsonProperty({ type: [String], optional: true })
+  @JsonProperty({ name: 'optionalStringArray', type: [String], optional: true })
   public optionalStringArray?: string[];
 
   constructor() {
@@ -21,10 +21,10 @@ export class ArrayTestClass {
 }
 
 export class NestedClass {
-  @JsonProperty({ type: String })
+  @JsonProperty({ name: 'name', type: String })
   public name: string;
 
-  @JsonProperty({ type: Number })
+  @JsonProperty({ name: 'value', type: Number })
   public value: number;
 
   constructor(name?: string, value?: number) {
@@ -34,10 +34,10 @@ export class NestedClass {
 }
 
 export class ClassWithNestedArray {
-  @JsonProperty({ type: [NestedClass] })
+  @JsonProperty({ name: 'nestedArray', type: [NestedClass] })
   public nestedArray: NestedClass[];
 
-  @JsonProperty({ type: String })
+  @JsonProperty({ name: 'title', type: String })
   public title: string;
 
   constructor() {
