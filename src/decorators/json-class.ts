@@ -1,11 +1,5 @@
+import { JsonClassOptions } from '../models/json-class-options.model';
 import type { ClassConstructor } from '../types/class-constructor.type';
-
-type JsonClassOptions = {
-  /**
-   * Name for the JSON class (mandatory)
-   */
-  name: string;
-};
 
 type JsonClassMetadata = {
   name: string;
