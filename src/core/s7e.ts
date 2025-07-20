@@ -40,27 +40,6 @@ export class S7e {
     return JSON.stringify(obj);
   }
 
-  private static serializeValue(
-    options: JsonPropertyOptions | undefined,
-    value: unknown
-  ): unknown {
-    // Handle array serialization
-    if (options?.type && TypeUtils.isArrayTypeConstructor(options.type) && Array.isArray(value)) {
-      return value.map((item: unknown): unknown => {
-        // If the array item is an object with a serialize method (another class), serialize it
-        if (isNotNil(item) && typeof item === 'object' && typeof item.constructor === 'function'
-          && getJsonProperties(item.constructor as ClassConstructor).length > 0
-        ) {
-          return JSON.parse(S7e.serialize(item));
-        }
-        return item;
-      });
-    }
-
-    // Regular single value serialization
-    return value;
-  }
-
   /**
    * Deserialize a JSON string to a class instance.
    * @param json - The JSON string to deserialize.
@@ -95,6 +74,27 @@ export class S7e {
       (instance as any)[property.name] = value;
     }
     return instance;
+  }
+
+  private static serializeValue(
+    options: JsonPropertyOptions | undefined,
+    value: unknown
+  ): unknown {
+    // Handle array serialization
+    if (options?.type && TypeUtils.isArrayTypeConstructor(options.type) && Array.isArray(value)) {
+      return value.map((item: unknown): unknown => {
+        // If the array item is an object with a serialize method (another class), serialize it
+        if (isNotNil(item) && typeof item === 'object' && typeof item.constructor === 'function'
+          && getJsonProperties(item.constructor as ClassConstructor).length > 0
+        ) {
+          return JSON.parse(S7e.serialize(item));
+        }
+        return item;
+      });
+    }
+
+    // Regular single value serialization
+    return value;
   }
 
   private static deserializeValue(
