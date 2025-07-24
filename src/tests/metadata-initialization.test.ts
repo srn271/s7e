@@ -1,4 +1,4 @@
-import { expect, describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { S7e } from '../core/s7e';
 import { JsonClass } from '../decorators/json-class';
 import { JsonProperty } from '../decorators/json-property';

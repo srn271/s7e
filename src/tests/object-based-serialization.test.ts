@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { S7e } from '../core/s7e';
 import { JsonClass } from '../decorators/json-class';
 import { JsonProperty } from '../decorators/json-property';
@@ -40,7 +40,7 @@ describe('Object-Based Serialization Tests', () => {
   });
 
   describe('serializeToObject API', () => {
-    it('should serialize to object without JSON.stringify/parse overhead', () => {
+    test('should serialize to object without JSON.stringify/parse overhead', () => {
       const instance = new PerformanceTestClass();
       instance.id = 'test-123';
       instance.name = 'Test Object';
@@ -70,7 +70,7 @@ describe('Object-Based Serialization Tests', () => {
       expect(obj).toEqual(jsonSerialized);
     });
 
-    it('should handle null/undefined values', () => {
+    test('should handle null/undefined values', () => {
       const nullResult = S7e.serializeToObject(null);
       expect(nullResult).toBeNull();
 
@@ -80,7 +80,7 @@ describe('Object-Based Serialization Tests', () => {
   });
 
   describe('deserializeFromObject API', () => {
-    it('should deserialize from object without JSON.parse/stringify overhead', () => {
+    test('should deserialize from object without JSON.parse/stringify overhead', () => {
       const obj = {
         $type: 'PerformanceTestClass',
         id: 'test-456',
@@ -113,7 +113,7 @@ describe('Object-Based Serialization Tests', () => {
       expect(result.metadata).toEqual(jsonDeserialized.metadata);
     });
 
-    it('should deserialize using class name from object', () => {
+    test('should deserialize using class name from object', () => {
       const obj = {
         $type: 'PerformanceTestClass',
         id: 'test-789',
@@ -131,7 +131,7 @@ describe('Object-Based Serialization Tests', () => {
       expect((result as PerformanceTestClass).name).toBe('Class Name Test');
     });
 
-    it('should deserialize using discriminator only from object', () => {
+    test('should deserialize using discriminator only from object', () => {
       const obj = {
         $type: 'PerformanceTestClass',
         id: 'test-discriminator',
@@ -149,7 +149,7 @@ describe('Object-Based Serialization Tests', () => {
       expect((result as PerformanceTestClass).name).toBe('Discriminator Test');
     });
 
-    it('should deserialize arrays from object', () => {
+    test('should deserialize arrays from object', () => {
       const arrayObj = [
         {
           $type: 'PerformanceTestClass',
@@ -183,7 +183,7 @@ describe('Object-Based Serialization Tests', () => {
   });
 
   describe('nested object performance', () => {
-    it('should handle nested objects efficiently without JSON conversions', () => {
+    test('should handle nested objects efficiently without JSON conversions', () => {
       const item1 = new PerformanceTestClass();
       item1.id = 'nested-1';
       item1.name = 'Nested Item 1';
@@ -247,7 +247,7 @@ describe('Object-Based Serialization Tests', () => {
   });
 
   describe('compatibility with existing JSON API', () => {
-    it('should maintain compatibility with string-based serialize/deserialize', () => {
+    test('should maintain compatibility with string-based serialize/deserialize', () => {
       const instance = new PerformanceTestClass();
       instance.id = 'compat-test';
       instance.name = 'Compatibility Test';

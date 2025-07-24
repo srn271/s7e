@@ -1,4 +1,4 @@
-import { expect, test, describe } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { S7e } from '../core/s7e';
 import { Product } from './product.fixture';
 

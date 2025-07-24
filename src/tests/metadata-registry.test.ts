@@ -1,4 +1,4 @@
-import { expect, describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { MetadataRegistry } from '../core/metadata-registry';
 import { JsonClass } from '../decorators/json-class';
 import { JsonProperty } from '../decorators/json-property';

@@ -1,6 +1,7 @@
-import { expect, test, describe } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { S7e } from '../core/s7e';
-import { ArrayTestClass, NestedClass, ClassWithNestedArray } from './array-test.fixture';
+import { ArrayTestClass, ClassWithNestedArray, NestedClass } from './array-test.fixture';
+import { TestUtils } from './test-utils';
 
 describe('Array Support', () => {
   describe('Serialization', () => {
@@ -11,21 +12,23 @@ describe('Array Support', () => {
       instance.booleanArray = [true, false, true];
 
       const json = S7e.serialize(instance);
-      const parsed = JSON.parse(json);
-
-      expect(parsed.stringArray).toEqual(['hello', 'world']);
-      expect(parsed.numberArray).toEqual([1, 2, 3]);
-      expect(parsed.booleanArray).toEqual([true, false, true]);
+      const expectedStructure = {
+        stringArray: ['hello', 'world'],
+        numberArray: [1, 2, 3],
+        booleanArray: [true, false, true],
+      };
+      TestUtils.expectJsonToHaveStructure(json, expectedStructure);
     });
 
     test('should serialize empty arrays', () => {
       const instance = new ArrayTestClass();
       const json = S7e.serialize(instance);
-      const parsed = JSON.parse(json);
-
-      expect(parsed.stringArray).toEqual([]);
-      expect(parsed.numberArray).toEqual([]);
-      expect(parsed.booleanArray).toEqual([]);
+      const expectedStructure = {
+        stringArray: [],
+        numberArray: [],
+        booleanArray: [],
+      };
+      TestUtils.expectJsonToHaveStructure(json, expectedStructure);
     });
 
     test('should skip optional undefined arrays', () => {

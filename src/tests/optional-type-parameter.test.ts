@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { S7e } from '../core/s7e';
 import { JsonClass } from '../decorators/json-class';
 import { JsonProperty } from '../decorators/json-property';
@@ -47,7 +47,7 @@ describe('Optional Type Parameter Tests', () => {
   });
 
   describe('deserialize with no type parameter', () => {
-    it('should deserialize using discriminator when no type is provided', () => {
+    test('should deserialize using discriminator when no type is provided', () => {
       // Test data
       const carJson = JSON.stringify({
         $type: 'SportsCar',
@@ -69,7 +69,7 @@ describe('Optional Type Parameter Tests', () => {
       expect(car.horsepower).toBe(478);
     });
 
-    it('should deserialize different types based on discriminator', () => {
+    test('should deserialize different types based on discriminator', () => {
       // Test data for motorcycle
       const bikeJson = JSON.stringify({
         $type: 'Motorcycle',
@@ -91,7 +91,7 @@ describe('Optional Type Parameter Tests', () => {
       expect(bike.hasWindshield).toBe(false);
     });
 
-    it('should deserialize simple class using discriminator', () => {
+    test('should deserialize simple class using discriminator', () => {
       // Test data for simple class
       const simpleJson = JSON.stringify({
         $type: 'SimpleClass',
@@ -109,7 +109,7 @@ describe('Optional Type Parameter Tests', () => {
       expect(simple.value).toBe(42);
     });
 
-    it('should throw error when discriminator property is missing', () => {
+    test('should throw error when discriminator property is missing', () => {
       // Test data without discriminator
       const jsonWithoutDiscriminator = JSON.stringify({
         brand: 'Toyota',
@@ -122,7 +122,7 @@ describe('Optional Type Parameter Tests', () => {
       );
     });
 
-    it('should throw error when discriminator value is not registered', () => {
+    test('should throw error when discriminator value is not registered', () => {
       // Test data with unregistered discriminator
       const jsonWithUnknownType = JSON.stringify({
         $type: 'UnregisteredType',
@@ -136,7 +136,7 @@ describe('Optional Type Parameter Tests', () => {
       );
     });
 
-    it('should throw error when JSON is not a valid object', () => {
+    test('should throw error when JSON is not a valid object', () => {
       // Test with invalid JSON structure
       const invalidJson = JSON.stringify('not an object');
 
@@ -146,7 +146,7 @@ describe('Optional Type Parameter Tests', () => {
       );
     });
 
-    it('should throw error when discriminator value is not a string', () => {
+    test('should throw error when discriminator value is not a string', () => {
       // Test data with non-string discriminator
       const jsonWithNonStringDiscriminator = JSON.stringify({
         $type: 123,
@@ -161,7 +161,7 @@ describe('Optional Type Parameter Tests', () => {
   });
 
   describe('traditional deserialization still works', () => {
-    it('should work with explicit type parameter', () => {
+    test('should work with explicit type parameter', () => {
       // Test that providing explicit type still works
       const carJson = JSON.stringify({
         $type: 'SportsCar',
@@ -182,7 +182,7 @@ describe('Optional Type Parameter Tests', () => {
       expect(result.horsepower).toBe(630);
     });
 
-    it('should work with string class name', () => {
+    test('should work with string class name', () => {
       // Test that providing string class name still works
       const bikeJson = JSON.stringify({
         $type: 'Motorcycle',
@@ -204,7 +204,7 @@ describe('Optional Type Parameter Tests', () => {
       expect(bike.hasWindshield).toBe(true);
     });
 
-    it('should work with array type for polymorphic arrays', () => {
+    test('should work with array type for polymorphic arrays', () => {
       // Test array deserialization still works
       const vehiclesJson = JSON.stringify([
         {

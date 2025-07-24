@@ -1,5 +1,6 @@
-import { expect, test, describe } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { S7e } from '../core/s7e';
+import { TestUtils } from './test-utils';
 import { User } from './user.fixture';
 
 describe('Deserialization', () => {
@@ -35,7 +36,8 @@ describe('Deserialization', () => {
   test('should throw error if required property is missing', () => {
     const json = '{"name":"Bob","age":42}';
     // active is required (optional: false)
-    expect(() => S7e.deserialize(json, User)).toThrowError(
+    TestUtils.expectToThrowWithMessage(
+      () => S7e.deserialize(json, User),
       /Missing required property 'active'/,
     );
   });

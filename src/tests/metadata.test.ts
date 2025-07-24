@@ -1,6 +1,6 @@
-import { expect, test, describe } from 'vitest';
-import { JsonProperty } from '../decorators/json-property';
+import { describe, expect, test } from 'vitest';
 import { MetadataRegistry } from '../core/metadata-registry';
+import { JsonProperty } from '../decorators/json-property';
 
 describe('Metadata Management', () => {
   test('should make metadata available immediately after class definition', () => {

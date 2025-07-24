@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { S7e } from '../core/s7e';
 import { JsonClass } from '../decorators/json-class';
 import { JsonProperty } from '../decorators/json-property';
@@ -53,7 +53,7 @@ describe('Optional Type Parameter Tests', () => {
   });
 
   describe('type inference for primitive types', () => {
-    it('should infer string, number, and boolean types correctly', () => {
+    test('should infer string, number, and boolean types correctly', () => {
       const person = new PersonWithInferredTypes();
       person.firstName = 'John';
       person.age = 30;
@@ -76,7 +76,7 @@ describe('Optional Type Parameter Tests', () => {
       expect(result.metadata).toEqual({ level: 'senior', department: 'engineering' });
     });
 
-    it('should handle null and undefined values correctly', () => {
+    test('should handle null and undefined values correctly', () => {
       const person = new PersonWithInferredTypes();
       person.firstName = 'Jane';
       person.age = 25;
@@ -96,7 +96,7 @@ describe('Optional Type Parameter Tests', () => {
   });
 
   describe('type inference for arrays', () => {
-    it('should handle arrays of primitives without explicit type', () => {
+    test('should handle arrays of primitives without explicit type', () => {
       const person = new PersonWithInferredTypes();
       person.firstName = 'Alice';
       person.age = 28;
@@ -111,7 +111,7 @@ describe('Optional Type Parameter Tests', () => {
       expect((result.metadata as any).team).toEqual(['dev', 'design', 'qa']);
     });
 
-    it('should handle empty arrays correctly', () => {
+    test('should handle empty arrays correctly', () => {
       const person = new PersonWithInferredTypes();
       person.firstName = 'Bob';
       person.age = 35;
@@ -128,7 +128,7 @@ describe('Optional Type Parameter Tests', () => {
   });
 
   describe('type inference for complex objects', () => {
-    it('should handle nested objects with discriminators', () => {
+    test('should handle nested objects with discriminators', () => {
       const nested1 = new NestedClass();
       nested1.id = 'item1';
       nested1.value = 100;
@@ -163,7 +163,7 @@ describe('Optional Type Parameter Tests', () => {
       });
     });
 
-    it('should handle plain objects without discriminators', () => {
+    test('should handle plain objects without discriminators', () => {
       const complex = new ComplexClass();
       complex.name = 'Plain Object Test';
       complex.items = [];
@@ -185,7 +185,7 @@ describe('Optional Type Parameter Tests', () => {
   });
 
   describe('mixed explicit and inferred types', () => {
-    it('should work correctly when some properties have explicit types and others are inferred', () => {
+    test('should work correctly when some properties have explicit types and others are inferred', () => {
       const person = new PersonWithInferredTypes();
       person.firstName = 'Mixed'; // explicit String type
       person.age = 42; // inferred number
@@ -205,7 +205,7 @@ describe('Optional Type Parameter Tests', () => {
   });
 
   describe('type inference edge cases', () => {
-    it('should handle complex nested structures', () => {
+    test('should handle complex nested structures', () => {
       const person = new PersonWithInferredTypes();
       person.firstName = 'Complex';
       person.age = 30;
@@ -241,7 +241,7 @@ describe('Optional Type Parameter Tests', () => {
       });
     });
 
-    it('should preserve type information through serialization/deserialization cycles', () => {
+    test('should preserve type information through serialization/deserialization cycles', () => {
       const person = new PersonWithInferredTypes();
       person.firstName = 'Cycle Test';
       person.age = 25;

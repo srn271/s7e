@@ -1,28 +1,24 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { S7e } from '../core/s7e';
-import { Shape, Circle, Rectangle, Vehicle, Car, Motorcycle } from './discriminator.fixture';
+import { Car, Circle, Motorcycle, Rectangle, Shape, Vehicle } from './discriminator.fixture';
+import { TestUtils } from './test-utils';
 
 describe('Discriminator Support', () => {
-  beforeEach(() => {
-    // Clear type registry before each test
-    S7e.clearTypeRegistry();
-    // Reset discriminator property to default
-    S7e.setDiscriminatorProperty('$type');
-  });
+  TestUtils.setupCleanState();
 
   describe('Discriminator property configuration', () => {
-    it('should have default discriminator property as $type', () => {
+    test('should have default discriminator property as $type', () => {
       expect(S7e.getDiscriminatorProperty()).toBe('$type');
     });
 
-    it('should allow setting custom discriminator property', () => {
+    test('should allow setting custom discriminator property', () => {
       S7e.setDiscriminatorProperty('type');
       expect(S7e.getDiscriminatorProperty()).toBe('type');
     });
   });
 
   describe('Type registry', () => {
-    it('should register types correctly', () => {
+    test('should register types correctly', () => {
       S7e.registerTypes([Circle, Rectangle]);
 
       expect(S7e.getRegisteredType('Circle')).toBe(Circle);
@@ -30,7 +26,7 @@ describe('Discriminator Support', () => {
       expect(S7e.getRegisteredType('NonExistent')).toBeUndefined();
     });
 
-    it('should clear type registry', () => {
+    test('should clear type registry', () => {
       S7e.registerTypes([Circle, Rectangle]);
       expect(S7e.getRegisteredType('Circle')).toBe(Circle);
 
@@ -40,7 +36,7 @@ describe('Discriminator Support', () => {
   });
 
   describe('Serialization with discriminator', () => {
-    it('should add discriminator property during serialization', () => {
+    test('should add discriminator property during serialization', () => {
       const circle = new Circle('c1', 5);
       const json = S7e.serialize(circle);
       const obj = JSON.parse(json);
@@ -50,7 +46,7 @@ describe('Discriminator Support', () => {
       expect(obj.radius).toBe(5);
     });
 
-    it('should use custom discriminator property name', () => {
+    test('should use custom discriminator property name', () => {
       S7e.setDiscriminatorProperty('objectType');
 
       const rectangle = new Rectangle('r1', 10, 20);
@@ -69,7 +65,7 @@ describe('Discriminator Support', () => {
       S7e.registerTypes([Circle, Rectangle, Car, Motorcycle]);
     });
 
-    it('should deserialize using class name', () => {
+    test('should deserialize using class name', () => {
       const json = '{"$type":"Circle","id":"c1","radius":5}';
       const circle = S7e.deserialize(json, 'Circle') as Circle;
 
@@ -78,7 +74,7 @@ describe('Discriminator Support', () => {
       expect(circle.radius).toBe(5);
     });
 
-    it('should throw error for unregistered class name', () => {
+    test('should throw error for unregistered class name', () => {
       const json = '{"$type":"Triangle","id":"t1"}';
 
       expect(() => {
@@ -92,7 +88,7 @@ describe('Discriminator Support', () => {
       S7e.registerTypes([Circle, Rectangle, Car, Motorcycle]);
     });
 
-    it('should deserialize array with mixed types correctly', () => {
+    test('should deserialize array with mixed types correctly', () => {
       const json = JSON.stringify([
         { $type: 'Circle', id: 'c1', radius: 5 },
         { $type: 'Rectangle', id: 'r1', width: 10, height: 20 },
@@ -119,7 +115,7 @@ describe('Discriminator Support', () => {
       expect(circle2.radius).toBe(3);
     });
 
-    it('should handle missing discriminator by using base class', () => {
+    test('should handle missing discriminator by using base class', () => {
       const json = JSON.stringify([
         { $type: 'Circle', id: 'c1', radius: 5 },
         { id: 'unknown', someProperty: 'value' }, // No discriminator
@@ -135,7 +131,7 @@ describe('Discriminator Support', () => {
       expect(shapes[1].id).toBe('unknown');
     });
 
-    it('should work with different inheritance hierarchies', () => {
+    test('should work with different inheritance hierarchies', () => {
       const json = JSON.stringify([
         { $type: 'Car', brand: 'Toyota', doors: 4 },
         { $type: 'Motorcycle', brand: 'Honda', engineSize: 600 },
@@ -162,7 +158,7 @@ describe('Discriminator Support', () => {
       S7e.registerTypes([Circle, Rectangle]);
     });
 
-    it('should use discriminator to resolve correct type', () => {
+    test('should use discriminator to resolve correct type', () => {
       const json = '{"$type":"Circle","id":"c1","radius":5}';
       const shape = S7e.deserialize(json, Shape);
 
@@ -170,7 +166,7 @@ describe('Discriminator Support', () => {
       expect((shape as Circle).radius).toBe(5);
     });
 
-    it('should fallback to provided constructor when discriminator not found', () => {
+    test('should fallback to provided constructor when discriminator not found', () => {
       const json = '{"$type":"UnknownType","id":"c1","radius":5}';
       const shape = S7e.deserialize(json, Circle);
 

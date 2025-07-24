@@ -1,17 +1,17 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { MetadataRegistry } from '../core/metadata-registry';
 import { Product, TestUser } from './json-class.fixture';
 import { User } from './user.fixture';
 
 describe('JsonClass Decorator', () => {
   describe('Basic functionality', () => {
-    it('should identify classes decorated with @JsonClass', () => {
+    test('should identify classes decorated with @JsonClass', () => {
       expect(MetadataRegistry.isJsonClass(Product)).toBe(true);
       expect(MetadataRegistry.isJsonClass(TestUser)).toBe(true);
       expect(MetadataRegistry.isJsonClass(User)).toBe(false); // User is not decorated with @JsonClass
     });
 
-    it('should return metadata for decorated classes', () => {
+    test('should return metadata for decorated classes', () => {
       const productMetadata = MetadataRegistry.getClassMetadata(Product);
       expect(productMetadata).toBeDefined();
       expect(productMetadata?.name).toBe('Product');
@@ -21,19 +21,19 @@ describe('JsonClass Decorator', () => {
       expect(testUserMetadata?.name).toBe('User');
     });
 
-    it('should return undefined for non-decorated classes', () => {
+    test('should return undefined for non-decorated classes', () => {
       const userMetadata = MetadataRegistry.getClassMetadata(User);
       expect(userMetadata).toBeUndefined();
     });
   });
 
   describe('Class name functionality', () => {
-    it('should return the specified class name', () => {
+    test('should return the specified class name', () => {
       expect(MetadataRegistry.getClassName(Product)).toBe('Product');
       expect(MetadataRegistry.getClassName(TestUser)).toBe('User');
     });
 
-    it('should return undefined for non-decorated classes', () => {
+    test('should return undefined for non-decorated classes', () => {
       expect(MetadataRegistry.getClassName(User)).toBeUndefined();
     });
   });
