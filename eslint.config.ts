@@ -1,6 +1,7 @@
+import stylistic from '@stylistic/eslint-plugin';
+import type { Linter } from 'eslint';
 import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
-import stylistic from '@stylistic/eslint-plugin';
 
 export default defineConfig([
   // Global ignores
@@ -15,8 +16,8 @@ export default defineConfig([
       "temp/"
     ]
   },
-  ...tseslint.configs.strict,
-  stylistic.configs.recommended,
+  ...tseslint.configs.strict as Linter.Config[],
+  stylistic.configs.recommended as Linter.Config,
   {
     files: ["**/*.ts"],
     plugins: {
@@ -50,4 +51,4 @@ export default defineConfig([
       "@typescript-eslint/unified-signatures": "off",
     }
   },
-]);
+] as Linter.Config[]);
