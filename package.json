@@ -11,6 +11,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -31,10 +33,15 @@
   },
   "homepage": "https://github.com/srn271/s7e#readme",
   "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@stylistic/eslint-plugin": "^5.2.2",
+    "eslint": "^9.31.0",
+    "globals": "^16.3.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0",
     "vitest": "^3.2.4"
   }
 }
