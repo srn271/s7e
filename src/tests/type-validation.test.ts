@@ -6,28 +6,28 @@ describe('Type Validation', () => {
   test('should throw TypeError if type does not match decorator', () => {
     const json = '{"name":123,"age":30,"active":true}'; // name should be string, not number
     expect(() => S7e.deserialize(json, User)).toThrowError(
-      /Type mismatch for property 'name'/
+      /Type mismatch for property 'name'/,
     );
   });
 
   test('should throw TypeError for number field with string value', () => {
     const json = '{"name":"Alice","age":"thirty","active":true}'; // age should be number, not string
     expect(() => S7e.deserialize(json, User)).toThrowError(
-      /Type mismatch for property 'age': expected Number, got String/
+      /Type mismatch for property 'age': expected Number, got String/,
     );
   });
 
   test('should throw TypeError for boolean field with string value', () => {
     const json = '{"name":"Alice","age":30,"active":"yes"}'; // active should be boolean, not string
     expect(() => S7e.deserialize(json, User)).toThrowError(
-      /Type mismatch for property 'active': expected Boolean, got String/
+      /Type mismatch for property 'active': expected Boolean, got String/,
     );
   });
 
   test('should throw TypeError for boolean field with number value', () => {
     const json = '{"name":"Alice","age":30,"active":1}'; // active should be boolean, not number
     expect(() => S7e.deserialize(json, User)).toThrowError(
-      /Type mismatch for property 'active': expected Boolean, got Number/
+      /Type mismatch for property 'active': expected Boolean, got Number/,
     );
   });
 

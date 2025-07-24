@@ -6,7 +6,7 @@
  * @returns `true` if the value is `null` or `undefined`, otherwise `false`.
  */
 export function isNil<T>(
-  value: T | null | undefined
+  value: T | null | undefined,
 ): value is null | undefined {
   return value === null || value === undefined;
 }

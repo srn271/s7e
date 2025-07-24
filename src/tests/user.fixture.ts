@@ -33,7 +33,7 @@ export class User {
     password?: string,
     internalId?: number,
     nickname?: string,
-    active?: boolean
+    active?: boolean,
   ) {
     this.name = name ?? '';
     this.age = age ?? 0;

@@ -36,7 +36,7 @@ describe('Deserialization', () => {
     const json = '{"name":"Bob","age":42}';
     // active is required (optional: false)
     expect(() => S7e.deserialize(json, User)).toThrowError(
-      /Missing required property 'active'/
+      /Missing required property 'active'/,
     );
   });
 

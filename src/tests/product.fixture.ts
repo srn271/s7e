@@ -6,8 +6,8 @@ import { JsonProperty } from '../decorators/json-property';
  * - API compatibility (e.g., snake_case APIs vs camelCase TypeScript)
  * - Legacy system integration
  * - Minification-safe property names
- * 
- * This fixture focuses purely on property name mapping without 
+ *
+ * This fixture focuses purely on property name mapping without
  * non-serializable attributes to keep tests focused and simple.
  */
 export class Product {
@@ -36,7 +36,7 @@ export class Product {
     price?: number,
     inStock?: boolean,
     categories?: string[],
-    description?: string
+    description?: string,
   ) {
     this.id = id ?? '';
     this.title = title ?? '';

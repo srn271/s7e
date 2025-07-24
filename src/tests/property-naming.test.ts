@@ -11,7 +11,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         1299.99,
         true,
         ['electronics', 'computers', 'gaming'],
-        'High-performance gaming laptop with RTX graphics'
+        'High-performance gaming laptop with RTX graphics',
       );
 
       const json = S7e.serialize(product);
@@ -42,7 +42,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         'Wireless Mouse',
         29.99,
         true,
-        ['electronics', 'accessories']
+        ['electronics', 'accessories'],
         // description intentionally omitted (undefined)
       );
 
@@ -54,7 +54,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
       expect(parsed).toHaveProperty('unit_price', 29.99);
       expect(parsed).toHaveProperty('is_available', true);
       expect(parsed).toHaveProperty('category_tags', ['electronics', 'accessories']);
-      
+
       // Optional property should be omitted when undefined
       expect(parsed).not.toHaveProperty('description_text');
     });
@@ -66,7 +66,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         149.99,
         false,
         ['electronics', 'accessories'],
-        'RGB mechanical keyboard with Cherry MX switches'
+        'RGB mechanical keyboard with Cherry MX switches',
       );
 
       const json = S7e.serialize(product);
@@ -89,13 +89,13 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         unit_price: 49.99,
         is_available: true,
         category_tags: ['electronics', 'accessories', 'connectivity'],
-        description_text: 'Multi-port USB-C hub with 4K HDMI output'
+        description_text: 'Multi-port USB-C hub with 4K HDMI output',
       });
 
       const product = S7e.deserialize(json, Product);
 
       expect(product).toBeInstanceOf(Product);
-      
+
       // Class attributes should have the correct values
       expect(product.id).toBe('PROD-004');
       expect(product.title).toBe('USB-C Hub');
@@ -111,7 +111,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         product_name: 'Bluetooth Speaker',
         unit_price: 79.99,
         is_available: false,
-        category_tags: ['electronics', 'audio']
+        category_tags: ['electronics', 'audio'],
         // description_text intentionally omitted
       });
 
@@ -123,7 +123,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
       expect(product.price).toBe(79.99);
       expect(product.inStock).toBe(false);
       expect(product.categories).toEqual(['electronics', 'audio']);
-      
+
       // Optional property should remain undefined
       expect(product.description).toBeUndefined();
     });
@@ -134,11 +134,11 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         product_name: 'Smart Watch',
         unit_price: 299.99,
         // is_available is missing (required property)
-        category_tags: ['electronics', 'wearables']
+        category_tags: ['electronics', 'wearables'],
       });
 
       expect(() => S7e.deserialize(json, Product)).toThrowError(
-        /Missing required property 'is_available'/
+        /Missing required property 'is_available'/,
       );
     });
 
@@ -148,11 +148,11 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         title: 'Smart Phone',     // Wrong: should be 'product_name'
         price: 699.99,            // Wrong: should be 'unit_price'
         inStock: true,            // Wrong: should be 'is_available'
-        categories: ['electronics'] // Wrong: should be 'category_tags'
+        categories: ['electronics'], // Wrong: should be 'category_tags'
       });
 
       expect(() => S7e.deserialize(json, Product)).toThrowError(
-        /Missing required property/
+        /Missing required property/,
       );
     });
   });
@@ -165,12 +165,12 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         199.99,
         true,
         ['electronics', 'audio', 'wireless'],
-        'Premium noise-cancelling wireless headphones'
+        'Premium noise-cancelling wireless headphones',
       );
 
       // Serialize
       const json = S7e.serialize(original);
-      
+
       // Deserialize
       const restored = S7e.deserialize(json, Product);
 
@@ -189,7 +189,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         'Power Bank',
         39.99,
         true,
-        ['electronics', 'accessories']
+        ['electronics', 'accessories'],
         // description intentionally undefined
       );
 
@@ -214,7 +214,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         unit_price: 129.99,
         is_available: true,
         category_tags: ['storage', 'electronics'],
-        description_text: 'Fast external SSD with USB 3.2 Gen 2 interface'
+        description_text: 'Fast external SSD with USB 3.2 Gen 2 interface',
       };
 
       const product = S7e.deserialize(JSON.stringify(apiResponse), Product);
@@ -234,7 +234,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         89.99,
         false,
         ['electronics', 'video'],
-        '1080p HD webcam with auto-focus'
+        '1080p HD webcam with auto-focus',
       );
 
       const json = S7e.serialize(product);
@@ -247,7 +247,7 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         unit_price: 89.99,
         is_available: false,
         category_tags: ['electronics', 'video'],
-        description_text: '1080p HD webcam with auto-focus'
+        description_text: '1080p HD webcam with auto-focus',
       });
     });
   });

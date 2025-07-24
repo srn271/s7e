@@ -1,5 +1,6 @@
 import { expect, test, describe } from 'vitest';
-import { JsonProperty, getJsonProperties, getJsonPropertyOptions } from '../decorators/json-property';
+import { JsonProperty } from '../decorators/json-property';
+import { MetadataRegistry } from '../core/metadata-registry';
 
 describe('Metadata Management', () => {
   test('should make metadata available immediately after class definition', () => {
@@ -17,16 +18,16 @@ describe('Metadata Management', () => {
     }
 
     // Check that metadata is available immediately without creating an instance
-    const properties = getJsonProperties(TestClass);
+    const properties = MetadataRegistry.getProperties(TestClass);
     expect(properties).toEqual([
       { name: 'name', jsonName: 'name' },
-      { name: 'age', jsonName: 'age' }
+      { name: 'age', jsonName: 'age' },
     ]);
 
-    const nameOptions = getJsonPropertyOptions(TestClass, 'name');
+    const nameOptions = MetadataRegistry.getPropertyOptions(TestClass, 'name');
     expect(nameOptions).toEqual({ name: 'name', optional: false, type: String });
 
-    const ageOptions = getJsonPropertyOptions(TestClass, 'age');
+    const ageOptions = MetadataRegistry.getPropertyOptions(TestClass, 'age');
     expect(ageOptions).toEqual({ name: 'age', optional: true, type: Number });
   });
 
@@ -45,10 +46,10 @@ describe('Metadata Management', () => {
     const instance2 = new TestClass('test2');
 
     // Metadata should still be available and consistent
-    const properties = getJsonProperties(TestClass);
+    const properties = MetadataRegistry.getProperties(TestClass);
     expect(properties).toEqual([{ name: 'name', jsonName: 'name' }]);
 
-    const nameOptions = getJsonPropertyOptions(TestClass, 'name');
+    const nameOptions = MetadataRegistry.getPropertyOptions(TestClass, 'name');
     expect(nameOptions).toEqual({ name: 'name', optional: false, type: String });
 
     // Instances should work correctly
@@ -71,16 +72,16 @@ describe('Metadata Management', () => {
     }
 
     // Metadata should be available even before creating an instance
-    const properties = getJsonProperties(RequiredParamsClass);
+    const properties = MetadataRegistry.getProperties(RequiredParamsClass);
     expect(properties).toEqual([
       { name: 'name', jsonName: 'name' },
-      { name: 'age', jsonName: 'age' }
+      { name: 'age', jsonName: 'age' },
     ]);
 
-    const nameOptions = getJsonPropertyOptions(RequiredParamsClass, 'name');
+    const nameOptions = MetadataRegistry.getPropertyOptions(RequiredParamsClass, 'name');
     expect(nameOptions).toEqual({ name: 'name', optional: false, type: String });
 
-    const ageOptions = getJsonPropertyOptions(RequiredParamsClass, 'age');
+    const ageOptions = MetadataRegistry.getPropertyOptions(RequiredParamsClass, 'age');
     expect(ageOptions).toEqual({ name: 'age', optional: true, type: Number });
   });
 });

@@ -46,7 +46,7 @@ describe('Array Support', () => {
       instance.title = 'Test Title';
       instance.nestedArray = [
         new NestedClass('first', 100),
-        new NestedClass('second', 200)
+        new NestedClass('second', 200),
       ];
 
       const json = S7e.serialize(instance);
@@ -55,7 +55,7 @@ describe('Array Support', () => {
       expect(parsed.title).toBe('Test Title');
       expect(parsed.nestedArray).toEqual([
         { name: 'first', value: 100 },
-        { name: 'second', value: 200 }
+        { name: 'second', value: 200 },
       ]);
     });
   });
@@ -65,7 +65,7 @@ describe('Array Support', () => {
       const json = JSON.stringify({
         stringArray: ['hello', 'world'],
         numberArray: [1, 2, 3],
-        booleanArray: [true, false, true]
+        booleanArray: [true, false, true],
       });
 
       const instance = S7e.deserialize(json, ArrayTestClass);
@@ -80,7 +80,7 @@ describe('Array Support', () => {
       const json = JSON.stringify({
         stringArray: [],
         numberArray: [],
-        booleanArray: []
+        booleanArray: [],
       });
 
       const instance = S7e.deserialize(json, ArrayTestClass);
@@ -95,7 +95,7 @@ describe('Array Support', () => {
         stringArray: ['test'],
         numberArray: [1],
         booleanArray: [true],
-        optionalStringArray: ['optional', 'values']
+        optionalStringArray: ['optional', 'values'],
       });
 
       const instance = S7e.deserialize(json, ArrayTestClass);
@@ -108,8 +108,8 @@ describe('Array Support', () => {
         title: 'Test Title',
         nestedArray: [
           { name: 'first', value: 100 },
-          { name: 'second', value: 200 }
-        ]
+          { name: 'second', value: 200 },
+        ],
       });
 
       const instance = S7e.deserialize(json, ClassWithNestedArray);
@@ -128,11 +128,11 @@ describe('Array Support', () => {
       const json = JSON.stringify({
         stringArray: 'not an array',
         numberArray: [],
-        booleanArray: []
+        booleanArray: [],
       });
 
       expect(() => S7e.deserialize(json, ArrayTestClass)).toThrowError(
-        /Type mismatch for property 'stringArray': expected Array, got String/
+        /Type mismatch for property 'stringArray': expected Array, got String/,
       );
     });
 
@@ -140,7 +140,7 @@ describe('Array Support', () => {
       const json = JSON.stringify({
         stringArray: ['hello', null, 'world'],
         numberArray: [1, null, 3],
-        booleanArray: [true, null, false]
+        booleanArray: [true, null, false],
       });
 
       const instance = S7e.deserialize(json, ArrayTestClass);
@@ -157,7 +157,7 @@ describe('Array Support', () => {
       original.title = 'Round Trip Test';
       original.nestedArray = [
         new NestedClass('item1', 42),
-        new NestedClass('item2', 84)
+        new NestedClass('item2', 84),
       ];
 
       const json = S7e.serialize(original);

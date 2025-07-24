@@ -10,7 +10,7 @@ export class TypeUtils {
 
   private constructor() { }
 
-  public static isPrimitiveConstructor<T>(type: TypeConstructor | undefined): type is PrimitiveConstructor {
+  public static isPrimitiveConstructor(type: TypeConstructor | undefined): type is PrimitiveConstructor {
     return type === String || type === Number || type === Boolean;
   }
 
@@ -18,21 +18,21 @@ export class TypeUtils {
     return typeof type === 'function' && !TypeUtils.isPrimitiveConstructor(type);
   }
 
-  public static isTypeConstructor<T>(type: TypeConstructor | undefined): type is TypeConstructor {
+  public static isTypeConstructor(type: TypeConstructor | undefined): type is TypeConstructor {
     return TypeUtils.isPrimitiveConstructor(type) || TypeUtils.isClassConstructor(type);
   }
 
-  public static isArrayTypeConstructor<T>(type: TypeConstructor | TypeConstructor[]): type is Array<TypeConstructor> {
+  public static isArrayTypeConstructor(type: TypeConstructor | TypeConstructor[]): type is Array<TypeConstructor> {
     return Array.isArray(type)
       && type.every((t: TypeConstructor): t is TypeConstructor => TypeUtils.isTypeConstructor(t));
   }
 
-  public static isSingleTypeConstructor<T>(type: TypeConstructor | TypeConstructor[]): type is TypeConstructor {
+  public static isSingleTypeConstructor(type: TypeConstructor | TypeConstructor[]): type is TypeConstructor {
     return !Array.isArray(type)
       && TypeUtils.isTypeConstructor(type);
   }
 
-  public static isValidTypeConstructor<T>(type: TypeConstructor | TypeConstructor[]): boolean {
+  public static isValidTypeConstructor(type: TypeConstructor | TypeConstructor[]): boolean {
     return TypeUtils.isArrayTypeConstructor(type) || TypeUtils.isSingleTypeConstructor(type);
   }
 
@@ -48,7 +48,7 @@ export class TypeUtils {
     return `${typeName}[]`;
   }
 
-  public static getTypeConstructor<T>(type: TypeConstructor | TypeConstructor[]): TypeConstructor {
+  public static getTypeConstructor(type: TypeConstructor | TypeConstructor[]): TypeConstructor {
     if (TypeUtils.isArrayTypeConstructor(type)) {
       return type[0]; // Assuming the first type in the array is the intended type
     } else if (TypeUtils.isSingleTypeConstructor(type)) {
@@ -84,7 +84,7 @@ export class TypeUtils {
     expected: TypeConstructor,
     actual: unknown,
     optional: boolean,
-    propertyName: string
+    propertyName: string,
   ): void {
     if (!TypeUtils.isTypeMatch(expected, actual)) {
       const expectedTypeName: string = TypeUtils.getTypeName(expected);

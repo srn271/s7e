@@ -101,16 +101,15 @@ class User {
 }
 ```
 
-#### Future Features (Coming Soon)
+#### ✅ Discriminator Support (Available Now)
 
-The `@JsonClass` decorator is designed to support advanced serialization patterns:
+The `@JsonClass` decorator supports polymorphic serialization with automatic discriminator handling:
 
-**🔄 Discriminator Support**
 ```ts
-// Future feature - polymorphic serialization
 @JsonClass({ name: 'Shape' })
 abstract class Shape {
-  // No explicit discriminator property needed - handled automatically
+  @JsonProperty({ name: 'id', type: String })
+  id: string;
 }
 
 @JsonClass({ name: 'Circle' })
@@ -128,18 +127,49 @@ class Rectangle extends Shape {
   height: number;
 }
 
+// Register types for polymorphic deserialization
+S7e.registerTypes([Circle, Rectangle]);
+
 // Configure discriminator property (optional - defaults to '$type')
-S7e.setDiscriminatorProperty('type'); // or keep default '$type'
+S7e.setDiscriminatorProperty('$type'); // or use custom name
 
 // Serialization automatically adds discriminator
 const circle = new Circle();
+circle.id = 'c1';
 circle.radius = 5;
 const json = S7e.serialize(circle);
-// '{"$type":"Circle","radius":5}' (or '{"type":"Circle","radius":5}' if configured)
+// '{"$type":"Circle","id":"c1","radius":5}'
 
-// Deserialization automatically detects type
-const shapes: Shape[] = S7e.deserialize(json, [Shape]); // Automatically creates Circle and Rectangle instances
+// Polymorphic deserialization automatically detects type
+const shapesJson = '[{"$type":"Circle","id":"c1","radius":5},{"$type":"Rectangle","id":"r1","width":10,"height":20}]';
+const shapes: Shape[] = S7e.deserialize(shapesJson, [Shape]); // Automatically creates Circle and Rectangle instances
 ```
+
+#### 🏗️ Advanced: MetadataRegistry
+
+For advanced use cases, you can directly access the centralized metadata registry:
+
+```ts
+import { MetadataRegistry } from 's7e';
+
+// Access property metadata
+const properties = MetadataRegistry.getProperties(MyClass);
+const options = MetadataRegistry.getPropertyOptions(MyClass, 'propertyName');
+
+// Access class metadata
+const className = MetadataRegistry.getClassName(MyClass);
+const isDecorated = MetadataRegistry.isJsonClass(MyClass);
+
+// Manage type registry
+MetadataRegistry.registerType('MyClass', MyClass);
+const registeredClass = MetadataRegistry.getRegisteredType('MyClass');
+MetadataRegistry.clearTypeRegistry();
+
+// Force metadata initialization (usually automatic)
+MetadataRegistry.ensureMetadataInitialized(MyClass);
+```
+
+#### Future Features (Coming Soon)
 
 **⚡ Lazy Loading**
 ```ts
@@ -328,9 +358,10 @@ class MyClass {
 }
 
 // Check if a class is decorated
-import { isJsonClass, getJsonClassName } from 's7e';
-console.log(isJsonClass(MyClass)); // true
-console.log(getJsonClassName(MyClass)); // 'MyClass'
+```ts
+import { MetadataRegistry } from 's7e';
+console.log(MetadataRegistry.isJsonClass(MyClass)); // true
+console.log(MetadataRegistry.getClassName(MyClass)); // 'MyClass'
 ```
   - `false`: Property is required during deserialization
 
@@ -421,13 +452,16 @@ npm run build
 
 ## 🗺️ Roadmap
 
-### Upcoming Features
+### ✅ Completed Features
 
-**🔄 Discriminator Support** (v0.1.0)
-- Automatic polymorphic deserialization based on `@JsonClass` names
-- Implicit discriminator property injection (default: `$type`)
-- Configurable discriminator property name via `S7e.setDiscriminatorProperty()`
-- Support for inheritance hierarchies with automatic type discrimination
+**🔄 Discriminator Support** (v0.0.1)
+- ✅ Automatic polymorphic deserialization based on `@JsonClass` names
+- ✅ Implicit discriminator property injection (default: `$type`)
+- ✅ Configurable discriminator property name via `S7e.setDiscriminatorProperty()`
+- ✅ Support for inheritance hierarchies with automatic type discrimination
+- ✅ Centralized `MetadataRegistry` for managing all decorator metadata
+
+### Upcoming Features
 
 **⚡ Lazy Loading** (v0.2.0)
 - String-based type references for lazy loading: `type: 'ClassName'` and `type: ['ClassName']`

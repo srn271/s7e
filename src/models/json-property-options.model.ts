@@ -15,8 +15,9 @@ export interface JsonPropertyOptions {
    * The type constructor for this property.
    * - For single values: String, Number, Boolean, or a custom class constructor
    * - For arrays: [String], [Number], [Boolean], or [CustomClass]
+   * - If not provided, the type will be inferred from the value during serialization/deserialization
    */
-  type: TypeConstructor | [TypeConstructor];
+  type?: TypeConstructor | [TypeConstructor];
 
   /**
    * If true, property is optional for serialization/deserialization.
