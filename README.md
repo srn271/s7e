@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/logo.svg" alt="s7e Logo" width="150" height="150">
+</div>
+
 # s7e
 
 > A TypeScript library for de-/serialization of TypeScript classes to and from JSON.
