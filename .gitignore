@@ -13,3 +13,7 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# VitePress
+docs/.vitepress/dist
+docs/.vitepress/cache

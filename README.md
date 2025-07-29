@@ -2,374 +2,146 @@
   <img src="assets/logo.svg" alt="s7e Logo" width="150" height="150">
 </div>
 
-# s7e
+# S7E
 
-> A TypeScript library for de-/serialization of TypeScript classes to and from JSON.
+> Type-safe JSON serialization for TypeScript classes
 
----
+[![npm version](https://badge.fury.io/js/s7e.svg)](https://badge.fury.io/js/s7e)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🚀 Features
+**S7E** is a lightweight TypeScript library that provides seamless serialization and deserialization of TypeScript classes to and from JSON using decorators.
 
-- Serialize and deserialize TypeScript classes with ease
-- Optional property support - Mark properties as optional for flexible serialization
-- Type validation - Automatic type checking during deserialization
-- Eager metadata loading - Fast property metadata access
-- Supports modern JavaScript (ES2022)
-- Works in both Node.js and browser environments
-- Zero dependencies for core functionality
-- Fully type-safe
+## ✨ Features
 
-## 📦 Installation
+- 🎯 **Type-safe** - Full TypeScript support with type validation
+- 🚀 **Zero dependencies** - Lightweight and fast
+- 🔄 **Polymorphic serialization** - Automatic type discrimination for inheritance
+- 📦 **Universal** - Works in Node.js and browsers
+- 🛡️ **Optional properties** - Flexible handling of nullable data
+- ⚡ **Performance optimized** - Eager metadata loading and caching
 
-```sh
+## � Quick Start
+
+### Installation
+
+```bash
 npm install s7e
 ```
 
-## 🛠️ Usage Example
+### Enable Decorators
+
+Add to your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
 
 ### Basic Usage
 
-```ts
-import { S7e, JsonProperty, JsonClass } from 's7e';
+```typescript
+import { S7e, JsonClass, JsonProperty } from 's7e';
 
 @JsonClass({ name: 'User' })
 class User {
+  @JsonProperty({ name: 'id', type: Number })
+  public id: number;
+
   @JsonProperty({ name: 'name', type: String })
   public name: string;
 
-  @JsonProperty({ name: 'age', type: Number })
-  public age: number;
-
-  @JsonProperty({ name: 'active', type: Boolean })
-  public active: boolean;
-
-  // Not serializable properties
-  public password: string;
-  public internalId: number;
-
-  constructor(
-    name: string,
-    age: number,
-    active: boolean = true,
-    password?: string,
-    internalId?: number
-  ) {
-    this.name = name;
-    this.age = age;
-    this.active = active;
-    this.password = password ?? '';
-    this.internalId = internalId ?? 0;
-  }
-}
-
-const user = new User('Alice', 30, true, 'secret', 123);
-const json = S7e.serialize(user); // '{"name":"Alice","age":30,"active":true}'
-const restored = S7e.deserialize(json, User); // User { name: 'Alice', age: 30, active: true, password: '', internalId: 0 }
-```
-
-### Class-Level Configuration with @JsonClass
-
-The `@JsonClass` decorator allows you to configure serialization behavior at the class level and prepares classes for advanced features:
-
-```ts
-import { S7e, JsonProperty, JsonClass } from 's7e';
-
-// Basic usage - marks the class as serializable with a name
-@JsonClass({ name: 'Product' })
-class Product {
-  @JsonProperty({ name: 'productName', type: String })
-  public name: string;
-
-  @JsonProperty({ name: 'price', type: Number })
-  public price: number;
-
-  constructor(name: string, price: number) {
-    this.name = name;
-    this.price = price;
-  }
-}
-
-// Another example with different name
-@JsonClass({ name: 'UserProfile' })
-class User {
-  @JsonProperty({ name: 'userName', type: String })
-  public name: string;
-
-  @JsonProperty({ name: 'userEmail', type: String })
+  @JsonProperty({ name: 'email', type: String })
   public email: string;
 
-  constructor(name: string, email: string) {
+  constructor(id: number, name: string, email: string) {
+    this.id = id;
     this.name = name;
     this.email = email;
   }
 }
+
+// Serialize
+const user = new User(1, 'John Doe', 'john@example.com');
+const json = S7e.serialize(user);
+console.log(json);
+// Output: '{"$type":"User","id":1,"name":"John Doe","email":"john@example.com"}'
+
+// Deserialize
+const deserializedUser = S7e.deserialize(User, json);
+console.log(deserializedUser instanceof User); // true
 ```
 
-#### ✅ Discriminator Support (Available Now)
+## 📚 Documentation
 
-The `@JsonClass` decorator supports polymorphic serialization with automatic discriminator handling:
+For comprehensive guides, API reference, and examples, visit our **[complete documentation site](https://srn271.github.io/s7e)**.
 
-```ts
-@JsonClass({ name: 'Shape' })
-abstract class Shape {
-  @JsonProperty({ name: 'id', type: String })
-  id: string;
+### Quick Links
+
+- 📖 [Getting Started Guide](https://srn271.github.io/s7e/guide/getting-started)
+- ⚙️ [Installation & Setup](https://srn271.github.io/s7e/guide/installation)
+- 🔧 [API Reference](https://srn271.github.io/s7e/api/decorators)
+- 💡 [Examples & Patterns](https://srn271.github.io/s7e/examples/basic-usage)
+- 🏗️ [Advanced Features](https://srn271.github.io/s7e/guide/advanced-features)
+
+## 💻 Examples
+
+### Polymorphic Serialization
+
+```typescript
+@JsonClass({ name: 'Animal' })
+abstract class Animal {
+  @JsonProperty({ name: 'name', type: String })
+  public name: string;
 }
 
-@JsonClass({ name: 'Circle' })
-class Circle extends Shape {
-  @JsonProperty({ name: 'radius', type: Number })
-  radius: number;
-}
-
-@JsonClass({ name: 'Rectangle' })
-class Rectangle extends Shape {
-  @JsonProperty({ name: 'width', type: Number })
-  width: number;
-
-  @JsonProperty({ name: 'height', type: Number })
-  height: number;
+@JsonClass({ name: 'Dog' })
+class Dog extends Animal {
+  @JsonProperty({ name: 'breed', type: String })
+  public breed: string;
 }
 
 // Register types for polymorphic deserialization
-S7e.registerTypes([Circle, Rectangle]);
+S7e.registerTypes([Dog]);
 
-// Configure discriminator property (optional - defaults to '$type')
-S7e.setDiscriminatorProperty('$type'); // or use custom name
-
-// Serialization automatically adds discriminator
-const circle = new Circle();
-circle.id = 'c1';
-circle.radius = 5;
-const json = S7e.serialize(circle);
-// '{"$type":"Circle","id":"c1","radius":5}'
-
-// Polymorphic deserialization automatically detects type
-const shapesJson = '[{"$type":"Circle","id":"c1","radius":5},{"$type":"Rectangle","id":"r1","width":10,"height":20}]';
-const shapes: Shape[] = S7e.deserialize(shapesJson, [Shape]); // Automatically creates Circle and Rectangle instances
+const animals = [new Dog()];
+const json = S7e.serializeArray(animals);
+const deserialized = S7e.deserializeArray(Animal, json);
+console.log(deserialized[0] instanceof Dog); // true
 ```
 
-#### 🏗️ Advanced: MetadataRegistry
+### Arrays and Complex Objects
 
-For advanced use cases, you can directly access the centralized metadata registry:
-
-```ts
-import { MetadataRegistry } from 's7e';
-
-// Access property metadata
-const properties = MetadataRegistry.getProperties(MyClass);
-const options = MetadataRegistry.getPropertyOptions(MyClass, 'propertyName');
-
-// Access class metadata
-const className = MetadataRegistry.getClassName(MyClass);
-const isDecorated = MetadataRegistry.isJsonClass(MyClass);
-
-// Manage type registry
-MetadataRegistry.registerType('MyClass', MyClass);
-const registeredClass = MetadataRegistry.getRegisteredType('MyClass');
-MetadataRegistry.clearTypeRegistry();
-
-// Force metadata initialization (usually automatic)
-MetadataRegistry.ensureMetadataInitialized(MyClass);
-```
-
-#### Future Features (Coming Soon)
-
-**⚡ Lazy Loading**
-```ts
-// Future feature - lazy loading of complex objects
-@JsonClass({ name: 'User' })
-class User {
-  @JsonProperty({ name: 'id', type: String })
-  id: string;
-
-  @JsonProperty({ name: 'profile', type: 'UserProfile' })
-  profile: UserProfile; // Will be loaded on-demand using string reference
-
-  @JsonProperty({ name: 'friends', type: ['User'] })
-  friends: User[]; // Array of lazy-loaded users
-}
-
-@JsonClass({ name: 'UserProfile' })
-class UserProfile {
-  @JsonProperty({ name: 'bio', type: String })
-  bio: string;
-
-  @JsonProperty({ name: 'preferences', type: 'UserPreferences' })
-  preferences: UserPreferences; // Nested lazy loading
-}
-
-// Will enable on-demand loading of referenced objects
-const user = S7e.deserialize(json, User);
-// user.profile and user.friends will be resolved automatically when accessed
-// String type references enable lazy resolution through the type registry
-```
-
-**🏷️ Type Registry**
-```ts
-// Future feature - automatic type registration
-// The @JsonClass name will be used for type lookup and registration
-S7e.registerTypes([User, Product, Circle, Rectangle]);
-const obj = S7e.deserialize(json, 'UserProfile'); // Automatic type resolution using string name
-```
-
-### Optional Properties
-
-```ts
-import { S7e, JsonProperty, JsonClass } from 's7e';
-
-@JsonClass({ name: 'Profile' })
-class Profile {
+```typescript
+@JsonClass({ name: 'Team' })
+class Team {
   @JsonProperty({ name: 'name', type: String })
   public name: string;
 
-  @JsonProperty({ name: 'nickname', type: String, optional: true })
-  public nickname: string | undefined; // Optional property
+  @JsonProperty({ name: 'members', type: [User] })
+  public members: User[];
 
-  @JsonProperty({ name: 'age', type: Number })
-  public age: number;
-
-  constructor(name?: string, age?: number, nickname?: string) {
-    this.name = name ?? '';
-    this.age = age ?? 0;
-    this.nickname = nickname;
-  }
-}
-
-// Serialization skips undefined optional properties
-const profile1 = new Profile('Bob', 25); // nickname is undefined
-const json1 = S7e.serialize(profile1); // '{"name":"Bob","age":25}'
-
-// Serialization includes defined optional properties
-const profile2 = new Profile('Alice', 30, 'Al');
-const json2 = S7e.serialize(profile2); // '{"name":"Alice","age":30,"nickname":"Al"}'
-
-// Deserialization works with missing optional properties
-const restored1 = S7e.deserialize('{"name":"Charlie","age":35}', Profile);
-// Profile { name: 'Charlie', age: 35, nickname: undefined }
-
-// Required properties must be present
-try {
-  S7e.deserialize('{"name":"Dave"}', Profile); // Missing required 'age'
-} catch (error) {
-  console.error(error.message); // "Missing required property 'age' in JSON during deserialization."
+  @JsonProperty({ name: 'leader', type: User, optional: true })
+  public leader?: User;
 }
 ```
 
-### Array Support
+## 🤝 Contributing
 
-```ts
-import { S7e, JsonProperty } from 's7e';
+Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) and submit pull requests to our [GitHub repository](https://github.com/srn271/s7e).
 
-class BlogPost {
-  @JsonProperty({ name: 'title', type: String })
-  public title: string;
+## 📄 License
 
-  @JsonProperty({ name: 'tags', type: [String] })
-  public tags: string[];
+MIT © [srn271](https://github.com/srn271)
 
-  @JsonProperty({ name: 'ratings', type: [Number] })
-  public ratings: number[];
+---
 
-  constructor() {
-    this.title = '';
-    this.tags = [];
-    this.ratings = [];
-  }
-}
+**[📚 View Full Documentation →](https://srn271.github.io/s7e)**
 
-// Arrays of nested objects
-class Comment {
-  @JsonProperty({ name: 'author', type: String })
-  public author: string;
 
-  @JsonProperty({ name: 'content', type: String })
-  public content: string;
-
-  constructor(author?: string, content?: string) {
-    this.author = author ?? '';
-    this.content = content ?? '';
-  }
-}
-
-class Article {
-  @JsonProperty({ name: 'title', type: String })
-  public title: string;
-
-  @JsonProperty({ name: 'comments', type: [Comment] })
-  public comments: Comment[];
-
-  constructor() {
-    this.title = '';
-    this.comments = [];
-  }
-}
-
-// Usage
-const article = new Article();
-article.title = 'My Article';
-article.comments = [
-  new Comment('Alice', 'Great post!'),
-  new Comment('Bob', 'Thanks for sharing!')
-];
-
-const json = S7e.serialize(article);
-// '{"title":"My Article","comments":[{"author":"Alice","content":"Great post!"},{"author":"Bob","content":"Thanks for sharing!"}]}'
-
-const restored = S7e.deserialize(json, Article);
-// Article with properly deserialized Comment instances
-console.log(restored.comments[0] instanceof Comment); // true
-```
-
-## 📋 API Reference
-
-### `@JsonProperty(options)`
-
-Decorator to mark a property for JSON serialization/deserialization.
-
-**Options:**
-- `name: string` - **Required**. The JSON property name for serialization/deserialization (mandatory for minification compatibility)
-- `type: TypeConstructor | [TypeConstructor] | string | [string]` - **Required**. The type constructor for this property
-  - Direct references: `String`, `Number`, `Boolean`, or custom class constructor
-  - Arrays: `[String]`, `[Number]`, `[Boolean]`, or `[CustomClass]`
-  - Lazy references: `'CustomClass'` or `['CustomClass']` - enables lazy loading via type registry
-- `optional?: boolean` - Whether the property is optional (default: `false`)
-  - `true`: Property can be missing during deserialization, undefined values are skipped during serialization
-  - `false`: Property is required during deserialization
-
-### `@JsonClass(options)`
-
-Decorator to mark a class for JSON serialization/deserialization and enable advanced features.
-
-**Options:**
-- `name: string` - **Required**. The unique name identifier for the class
-  - Used for type discrimination in polymorphic scenarios
-  - Enables lazy loading and type registry features
-  - Must be unique across your application
-
-**Benefits:**
-- 🔍 **Type Identification**: Enables automatic type detection during deserialization
-- 🚀 **Performance**: Optimizes metadata access and reduces initialization overhead
-- 🔄 **Future-Ready**: Prepares your classes for discriminator and lazy-loading features
-- 📋 **Type Registry**: Allows automatic type registration and lookup by name
-
-**Current Usage:**
-```ts
-@JsonClass({ name: 'MyClass' })
-class MyClass {
-  @JsonProperty({ name: 'prop', type: String })
-  prop: string;
-}
-
-// Check if a class is decorated
-```ts
-import { MetadataRegistry } from 's7e';
-console.log(MetadataRegistry.isJsonClass(MyClass)); // true
-console.log(MetadataRegistry.getClassName(MyClass)); // 'MyClass'
-```
-  - `false`: Property is required during deserialization
-
-### `S7e.serialize<T>(instance: T): string`
 
 Serializes a class instance to a JSON string.
 - Only properties marked with `@JsonProperty` are included
@@ -458,7 +230,7 @@ npm run build
 
 ### ✅ Completed Features
 
-**🔄 Discriminator Support** (v0.0.1)
+**🔄 Discriminator Support**
 - ✅ Automatic polymorphic deserialization based on `@JsonClass` names
 - ✅ Implicit discriminator property injection (default: `$type`)
 - ✅ Configurable discriminator property name via `S7e.setDiscriminatorProperty()`
@@ -467,18 +239,18 @@ npm run build
 
 ### Upcoming Features
 
-**⚡ Lazy Loading** (v0.2.0)
+**⚡ Lazy Loading**
 - String-based type references for lazy loading: `type: 'ClassName'` and `type: ['ClassName']`
 - On-demand resolution of complex nested objects through type registry
 - Memory optimization for large object graphs
 - Circular reference support via string type references
 
-**🏷️ Type Registry** (v0.3.0)
+**🏷️ Type Registry**
 - Automatic type registration using `@JsonClass` names
 - Overloaded `S7e.deserialize(json, 'ClassName')` for dynamic type resolution
 - Global type lookup and management
 
-**🔧 Advanced Features** (v0.4.0+)
+**🔧 Advanced Features**
 - Circular reference handling
 - Custom serialization hooks
 - Schema validation integration
