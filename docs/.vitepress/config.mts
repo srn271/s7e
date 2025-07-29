@@ -4,8 +4,9 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'S7E',
   description: 'Type-safe JSON serialization for TypeScript classes',
+  base: '/s7e/',
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/s7e/logo.svg' }],
     ['style', {}, `
       :root {
         --vp-c-brand-1: #3178C6;
@@ -68,7 +69,7 @@ export default defineConfig({
     `],
   ],
   themeConfig: {
-    logo: '/logo.svg',
+    logo: '/s7e/logo.svg',
 
     nav: [
       { text: 'Home', link: '/' },

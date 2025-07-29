@@ -6,7 +6,7 @@ hero:
   text: "Type-safe JSON Serialization"
   tagline: "Transform TypeScript classes to JSON and back with decorators, type validation and zero dependencies."
   image:
-    src: /logo.svg
+    src: /s7e/logo.svg
     alt: S7E Logo
   actions:
     - theme: brand

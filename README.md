@@ -77,15 +77,15 @@ console.log(deserializedUser instanceof User); // true
 
 ## 📚 Documentation
 
-For comprehensive guides, API reference, and examples, visit our **[complete documentation site](https://srn271.github.io/s7e)**.
+For comprehensive guides, API reference, and examples, visit our **[complete documentation site](https://srn.dev/s7e/)**.
 
 ### Quick Links
 
-- 📖 [Getting Started Guide](https://srn271.github.io/s7e/guide/getting-started)
-- ⚙️ [Installation & Setup](https://srn271.github.io/s7e/guide/installation)
-- 🔧 [API Reference](https://srn271.github.io/s7e/api/decorators)
-- 💡 [Examples & Patterns](https://srn271.github.io/s7e/examples/basic-usage)
-- 🏗️ [Advanced Features](https://srn271.github.io/s7e/guide/advanced-features)
+- 📖 [Getting Started Guide](https://srn.dev/s7e/guide/getting-started)
+- ⚙️ [Installation & Setup](https://srn.dev/s7e/guide/installation)
+- 🔧 [API Reference](https://srn.dev/s7e/api/decorators)
+- 💡 [Examples & Patterns](https://srn.dev/s7e/examples/basic-usage)
+- 🏗️ [Advanced Features](https://srn.dev/s7e/guide/advanced-features)
 
 ## 💻 Examples
 
@@ -139,7 +139,7 @@ MIT © [srn271](https://github.com/srn271)
 
 ---
 
-**[📚 View Full Documentation →](https://srn271.github.io/s7e)**
+**[📚 View Full Documentation →](https://srn.dev/s7e/)**
 
 
 
