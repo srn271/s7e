@@ -56,10 +56,6 @@ jobs:
     - name: Bump version
       run: npm version ${{ github.event.inputs.release-type }} --no-git-tag-version
 
-    - name: Update package.json to public
-      run: |
-        npm pkg set private=false
-
     - name: Get package version
       id: package-version
       run: echo "version=$(npm pkg get version | tr -d '"')" >> $GITHUB_OUTPUT
@@ -88,8 +84,3 @@ jobs:
       run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-    - name: Revert package.json to private
-      if: always()
-      run: |
-        git checkout package.json
