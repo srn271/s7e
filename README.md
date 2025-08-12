@@ -228,27 +228,13 @@ npm run build
 
 ## 🗺️ Roadmap
 
-### ✅ Completed Features
-
-**🔄 Discriminator Support**
-- ✅ Automatic polymorphic deserialization based on `@JsonClass` names
-- ✅ Implicit discriminator property injection (default: `$type`)
-- ✅ Configurable discriminator property name via `S7e.setDiscriminatorProperty()`
-- ✅ Support for inheritance hierarchies with automatic type discrimination
-- ✅ Centralized `MetadataRegistry` for managing all decorator metadata
-
 ### Upcoming Features
 
-**⚡ Lazy Loading**
-- String-based type references for lazy loading: `type: 'ClassName'` and `type: ['ClassName']`
-- On-demand resolution of complex nested objects through type registry
-- Memory optimization for large object graphs
-- Circular reference support via string type references
-
-**🏷️ Type Registry**
-- Automatic type registration using `@JsonClass` names
-- Overloaded `S7e.deserialize(json, 'ClassName')` for dynamic type resolution
-- Global type lookup and management
+**⚡ String-Based Type References for Properties**
+- Property type declarations using strings: `@JsonProperty({ name: 'user', type: 'User' })`
+- On-demand resolution of property types through type registry
+- Circular reference support via string type references in property declarations
+- Memory optimization for large object graphs with lazy property type resolution
 
 **🔧 Advanced Features**
 - Circular reference handling
@@ -256,7 +242,7 @@ npm run build
 - Schema validation integration
 - Performance optimizations
 
-*The `@JsonClass` decorator is already designed to support these features. Start using it now to future-proof your code!*
+*Note: String-based class name resolution for deserialization (`S7e.deserialize(json, 'ClassName')`) and discriminator-based polymorphic deserialization are already implemented and working.*
 
 ## 🤝 Contributing
 
