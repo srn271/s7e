@@ -1,6 +1,7 @@
 import type { JsonPropertyOptions } from '../models/json-property-options.model';
 import type { ClassConstructor } from '../types/class-constructor.type';
 import type { PropertyMapping } from '../types/property-mapping.type';
+import { isNil } from '../utils/is-nil';
 
 export type JsonPropertyMetadata = {
   properties: Array<PropertyMapping>;
@@ -83,7 +84,7 @@ export class MetadataRegistry {
 
     // Check if property already exists
     const existingProperty = metadata.properties.find(p => p.name === property.name);
-    if (!existingProperty) {
+    if (isNil(existingProperty)) {
       metadata.properties.push(property);
       metadata.options[property.name] = { optional: false, ...options };
     }

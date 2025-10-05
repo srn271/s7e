@@ -11,24 +11,24 @@ describe('Array Support', () => {
       instance.numberArray = [1, 2, 3];
       instance.booleanArray = [true, false, true];
 
-      const json = S7e.serialize(instance);
+      const obj = S7e.serialize(instance) as Record<string, unknown>;
       const expectedStructure = {
         stringArray: ['hello', 'world'],
         numberArray: [1, 2, 3],
         booleanArray: [true, false, true],
       };
-      TestUtils.expectJsonToHaveStructure(json, expectedStructure);
+      TestUtils.expectObjectToHaveStructure(obj, expectedStructure);
     });
 
     test('should serialize empty arrays', () => {
       const instance = new ArrayTestClass();
-      const json = S7e.serialize(instance);
+      const obj = S7e.serialize(instance) as Record<string, unknown>;
       const expectedStructure = {
         stringArray: [],
         numberArray: [],
         booleanArray: [],
       };
-      TestUtils.expectJsonToHaveStructure(json, expectedStructure);
+      TestUtils.expectObjectToHaveStructure(obj, expectedStructure);
     });
 
     test('should skip optional undefined arrays', () => {
@@ -38,10 +38,8 @@ describe('Array Support', () => {
       instance.booleanArray = [true];
       // optionalStringArray is undefined
 
-      const json = S7e.serialize(instance);
-      const parsed = JSON.parse(json);
-
-      expect(parsed).not.toHaveProperty('optionalStringArray');
+      const obj = S7e.serialize(instance) as Record<string, unknown>;
+      expect(obj).not.toHaveProperty('optionalStringArray');
     });
 
     test('should serialize nested object arrays', () => {
@@ -52,11 +50,10 @@ describe('Array Support', () => {
         new NestedClass('second', 200),
       ];
 
-      const json = S7e.serialize(instance);
-      const parsed = JSON.parse(json);
+      const obj = S7e.serialize(instance) as Record<string, unknown>;
 
-      expect(parsed.title).toBe('Test Title');
-      expect(parsed.nestedArray).toEqual([
+      expect(obj.title).toBe('Test Title');
+      expect(obj.nestedArray).toEqual([
         { name: 'first', value: 100 },
         { name: 'second', value: 200 },
       ]);
@@ -163,8 +160,8 @@ describe('Array Support', () => {
         new NestedClass('item2', 84),
       ];
 
-      const json = S7e.serialize(original);
-      const deserialized = S7e.deserialize(json, ClassWithNestedArray);
+      const obj = S7e.serialize(original) as Record<string, unknown>;
+      const deserialized = S7e.deserialize(obj, ClassWithNestedArray);
 
       expect(deserialized.title).toBe(original.title);
       expect(deserialized.nestedArray).toHaveLength(original.nestedArray.length);
