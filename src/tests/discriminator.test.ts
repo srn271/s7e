@@ -38,8 +38,7 @@ describe('Discriminator Support', () => {
   describe('Serialization with discriminator', () => {
     test('should add discriminator property during serialization', () => {
       const circle = new Circle('c1', 5);
-      const json = S7e.serialize(circle);
-      const obj = JSON.parse(json);
+      const obj = S7e.serialize(circle) as Record<string, unknown>;
 
       expect(obj.$type).toBe('Circle');
       expect(obj.id).toBe('c1');
@@ -50,8 +49,7 @@ describe('Discriminator Support', () => {
       S7e.setDiscriminatorProperty('objectType');
 
       const rectangle = new Rectangle('r1', 10, 20);
-      const json = S7e.serialize(rectangle);
-      const obj = JSON.parse(json);
+      const obj = S7e.serialize(rectangle) as Record<string, unknown>;
 
       expect(obj.objectType).toBe('Rectangle');
       expect(obj.id).toBe('r1');

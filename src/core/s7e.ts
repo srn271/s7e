@@ -65,25 +65,30 @@ export class S7e {
   }
 
   /**
-   * Serialize a class instance to a JSON string.
-   * @param instance - The class instance to serialize.
-   * @returns The JSON string representation of the instance.
-   */
-  public static serialize<T>(instance: T): string {
-    const obj = S7e.serializeToObject(instance);
-    return JSON.stringify(obj);
-  }
-
-  /**
    * Serialize a class instance to a plain object (POJO).
    * @param instance - The class instance to serialize.
    * @returns The plain object representation of the instance.
    */
-  public static serializeToObject<T>(instance: T): Record<string, unknown> | null | undefined {
+  public static serialize<T extends object>(instance: T | null | undefined): Record<string, unknown> | null | undefined;
+
+  /**
+   * Serialize a class instance to a plain object (POJO) with explicit class constructor.
+   * @param instance - The class instance to serialize.
+   * @param cls - The class constructor to use (takes precedence over discriminator).
+   * @returns The plain object representation of the instance.
+   */
+  public static serialize<T extends object>(instance: T | null | undefined, cls: ClassConstructor<T>): Record<string, unknown> | null | undefined;
+
+  /**
+   * Implementation of the overloaded serialize method.
+   */
+  public static serialize<T extends object>(instance: T | null | undefined, cls?: ClassConstructor<any>): Record<string, unknown> | null | undefined {
     if (isNil(instance)) {
       return instance;
     }
-    const ctor: ClassConstructor = (instance as NonNullable<T>).constructor as ClassConstructor;
+
+    // Use provided class constructor or fall back to instance constructor
+    const ctor: ClassConstructor = cls ?? (instance as NonNullable<T>).constructor as ClassConstructor;
     const properties: PropertyMapping[] = MetadataRegistry.getProperties(ctor);
     const obj: Record<string, unknown> = {};
 
@@ -106,120 +111,54 @@ export class S7e {
   }
 
   /**
-   * Deserialize a JSON string to a class instance.
-   * @param json - The JSON string to deserialize.
+   * Deserialize a JSON string or object to a class instance.
+   * @param json - The JSON string or object to deserialize.
    * @param cls - The class constructor to instantiate.
    * @returns An instance of the class with properties from the JSON.
    */
   public static deserialize<T extends object>(
-    json: string,
+    json: string | Record<string, unknown>,
     cls: ClassConstructor<T>
   ): T;
 
   /**
-   * Deserialize a JSON string to a class instance using class name.
-   * @param json - The JSON string to deserialize.
+   * Deserialize a JSON string or object to a class instance using class name.
+   * @param json - The JSON string or object to deserialize.
    * @param className - The name of the class to instantiate.
    * @returns An instance of the class with properties from the JSON.
    */
   public static deserialize(
-    json: string,
+    json: string | Record<string, unknown>,
     className: string
   ): object;
 
   /**
-   * Deserialize a JSON string to class instances (supports arrays for polymorphic deserialization).
-   * @param json - The JSON string to deserialize.
+   * Deserialize a JSON string or array to class instances (supports arrays for polymorphic deserialization).
+   * @param json - The JSON string or array to deserialize.
    * @param cls - Array containing the base class constructor for polymorphic deserialization.
    * @returns An array of instances with proper types based on discriminator.
    */
   public static deserialize<T extends object>(
-    json: string,
+    json: string | Record<string, unknown>[],
     cls: [ClassConstructor<T>]
   ): T[];
 
   /**
-   * Deserialize a JSON string to a class instance using only the discriminator value.
-   * @param json - The JSON string to deserialize (must contain discriminator property).
+   * Deserialize a JSON string or object to a class instance using only the discriminator value.
+   * @param json - The JSON string or object to deserialize (must contain discriminator property).
    * @returns An instance of the class determined by the discriminator value.
    */
-  public static deserialize(json: string): object;
+  public static deserialize(json: string | Record<string, unknown>): object;
 
   /**
    * Implementation of the overloaded deserialize method.
    */
   public static deserialize<T extends object>(
-    json: string,
+    json: string | Record<string, unknown> | Record<string, unknown>[],
     clsOrName?: ClassConstructor<T> | string | [ClassConstructor<T>],
   ): T | object | T[] {
-    const obj = JSON.parse(json);
+    const obj = typeof json === 'string' ? JSON.parse(json) : json;
 
-    // Handle case where no type is provided - use discriminator only
-    if (clsOrName === undefined) {
-      return S7e.deserializeByDiscriminatorFromObject(obj);
-    }
-
-    // Handle array type for polymorphic deserialization
-    if (Array.isArray(clsOrName)) {
-      return S7e.deserializeArrayFromObject(obj, clsOrName[0]);
-    }
-
-    // Handle string class name
-    if (typeof clsOrName === 'string') {
-      return S7e.deserializeByNameFromObject(obj, clsOrName);
-    }
-
-    // Handle direct constructor reference
-    return S7e.deserializeSingleFromObject(obj, clsOrName);
-  }
-
-  /**
-   * Deserialize a plain object to a class instance.
-   * @param obj - The plain object to deserialize.
-   * @param cls - The class constructor to instantiate.
-   * @returns An instance of the class with properties from the object.
-   */
-  public static deserializeFromObject<T extends object>(
-    obj: Record<string, unknown>,
-    cls: ClassConstructor<T>
-  ): T;
-
-  /**
-   * Deserialize a plain object to a class instance using class name.
-   * @param obj - The plain object to deserialize.
-   * @param className - The name of the class to instantiate.
-   * @returns An instance of the class with properties from the object.
-   */
-  public static deserializeFromObject(
-    obj: Record<string, unknown>,
-    className: string
-  ): object;
-
-  /**
-   * Deserialize a plain object to class instances (supports arrays for polymorphic deserialization).
-   * @param obj - The plain object or array to deserialize.
-   * @param cls - Array containing the base class constructor for polymorphic deserialization.
-   * @returns An array of instances with proper types based on discriminator.
-   */
-  public static deserializeFromObject<T extends object>(
-    obj: unknown[],
-    cls: [ClassConstructor<T>]
-  ): T[];
-
-  /**
-   * Deserialize a plain object to a class instance using only the discriminator value.
-   * @param obj - The plain object to deserialize (must contain discriminator property).
-   * @returns An instance of the class determined by the discriminator value.
-   */
-  public static deserializeFromObject(obj: Record<string, unknown>): object;
-
-  /**
-   * Implementation of the overloaded deserializeFromObject method.
-   */
-  public static deserializeFromObject<T extends object>(
-    obj: Record<string, unknown> | unknown[],
-    clsOrName?: ClassConstructor<T> | string | [ClassConstructor<T>],
-  ): T | object | T[] {
     // Handle case where no type is provided - use discriminator only
     if (clsOrName === undefined) {
       return S7e.deserializeByDiscriminatorFromObject(obj as Record<string, unknown>);
@@ -227,7 +166,7 @@ export class S7e {
 
     // Handle array type for polymorphic deserialization
     if (Array.isArray(clsOrName)) {
-      return S7e.deserializeArrayFromObject(obj as unknown[], clsOrName[0]);
+      return S7e.deserializeArrayFromObject(obj as Record<string, unknown>[], clsOrName[0]);
     }
 
     // Handle string class name
@@ -245,19 +184,19 @@ export class S7e {
   private static deserializeByDiscriminatorFromObject(obj: Record<string, unknown>): object {
     try {
       // Look for discriminator property in the object
-      if (!obj || typeof obj !== 'object') {
+      if (isNil(obj) || typeof obj !== 'object') {
         throw new Error('Object must be a valid object to deserialize by discriminator');
       }
 
       // Get discriminator value from object
       const discriminatorValue = obj[S7e.discriminatorProperty];
-      if (!discriminatorValue || typeof discriminatorValue !== 'string') {
+      if (isNil(discriminatorValue) || typeof discriminatorValue !== 'string') {
         throw new Error(`No discriminator property '${S7e.discriminatorProperty}' found in object or value is not a string`);
       }
 
       // Find the registered class for this discriminator value
       const registeredClass = S7e.getRegisteredType(discriminatorValue);
-      if (!registeredClass) {
+      if (isNil(registeredClass)) {
         throw new Error(`No registered class found for discriminator value: ${discriminatorValue}`);
       }
 
@@ -352,7 +291,7 @@ export class S7e {
    */
   private static deserializeByNameFromObject(obj: Record<string, unknown>, className: string): object {
     const cls = S7e.getRegisteredType(className);
-    if (!cls) {
+    if (isNil(cls)) {
       throw new Error(`Class '${className}' is not registered. Use S7e.registerTypes() to register it.`);
     }
     return S7e.deserializeSingleFromObject(obj, cls);
@@ -362,30 +301,25 @@ export class S7e {
    * Deserialize an array with polymorphic type resolution from object.
    */
   private static deserializeArrayFromObject<T extends object>(
-    array: unknown[],
+    array: Record<string, unknown>[],
     baseClass: ClassConstructor<T>,
   ): T[] {
     if (!Array.isArray(array)) {
       throw new TypeError('Expected array for polymorphic deserialization');
     }
 
-    return array.map((item: unknown) => {
-      if (typeof item !== 'object' || item === null) {
-        throw new TypeError('Array items must be objects for polymorphic deserialization');
-      }
-
-      const obj = item as Record<string, unknown>;
-      const discriminatorValue = obj[S7e.discriminatorProperty];
+    return array.map((item: Record<string, unknown>) => {
+      const discriminatorValue = item[S7e.discriminatorProperty];
 
       if (discriminatorValue && typeof discriminatorValue === 'string') {
         const registeredType = S7e.getRegisteredType(discriminatorValue);
         if (registeredType) {
-          return S7e.deserializeSingleFromObject(obj, registeredType as ClassConstructor<T>);
+          return S7e.deserializeSingleFromObject(item, registeredType as ClassConstructor<T>);
         }
       }
 
       // Fallback to base class if no discriminator or type not found
-      return S7e.deserializeSingleFromObject(obj, baseClass);
+      return S7e.deserializeSingleFromObject(item, baseClass);
     });
   }
 
@@ -400,20 +334,20 @@ export class S7e {
         if (isNotNil(item) && typeof item === 'object' && typeof item.constructor === 'function'
           && MetadataRegistry.getProperties(item.constructor as ClassConstructor).length > 0
         ) {
-          return S7e.serializeToObject(item);
+          return S7e.serialize(item);
         }
         return item;
       });
     }
 
     // If no type is specified and value is an array, try to serialize array items if they are objects
-    if (!options?.type && Array.isArray(value)) {
+    if (isNil(options?.type) && Array.isArray(value)) {
       return value.map((item: unknown): unknown => {
         // If the array item is an object with serializable properties, serialize it
         if (isNotNil(item) && typeof item === 'object' && typeof item.constructor === 'function'
           && MetadataRegistry.getProperties(item.constructor as ClassConstructor).length > 0
         ) {
-          return S7e.serializeToObject(item);
+          return S7e.serialize(item);
         }
         return item;
       });
@@ -428,7 +362,7 @@ export class S7e {
     jsonValue: unknown,
   ): unknown {
     // If no type is provided, try to infer from the value
-    if (!options.type) {
+    if (isNil(options.type)) {
       return S7e.deserializeValueWithoutType(jsonValue);
     }
 
@@ -529,7 +463,7 @@ export class S7e {
     name: string,
   ): void {
     // Skip validation if no type is provided - rely on runtime inference
-    if (!options.type) {
+    if (isNil(options.type)) {
       return;
     }
 
@@ -560,7 +494,7 @@ export class S7e {
     name: string,
   ): void {
     // Skip validation if no type is provided
-    if (!options.type) {
+    if (isNil(options.type)) {
       return;
     }
 

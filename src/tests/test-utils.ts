@@ -21,10 +21,12 @@ export class TestUtils {
   }
 
   /**
-   * Helper to create a test expectation for JSON serialization
+   * Helper to create a test expectation for JSON serialization (backward compatibility)
+   * Note: serialize() now returns objects, so this converts the expected JSON to object
    */
-  public static expectJsonToBe(obj: any, expectedJson: string) {
-    return expect(S7e.serialize(obj)).toBe(expectedJson);
+  public static expectJsonToBe(obj: object, expectedJson: string) {
+    const expectedObj: object = JSON.parse(expectedJson);
+    return expect(S7e.serialize(obj)).toEqual(expectedObj);
   }
 
   /**
@@ -39,13 +41,26 @@ export class TestUtils {
   }
 
   /**
+   * Helper to parse and validate JSON structure
+   */
+  public static expectObjectToHaveStructure(obj: Record<string, unknown>, expectedStructure: Record<string, any>) {
+    Object.entries(expectedStructure).forEach(([key, value]) => {
+      expect(obj).toHaveProperty(key, value);
+    });
+    return obj;
+  }
+
+  /**
    * Helper to serialize and deserialize for testing roundtrip
    */
   public static serializeAndDeserialize(instance: any, ctor: any) {
-    const json = S7e.serialize(instance);
-    const deserialized = S7e.deserialize(json, ctor);
+    const obj: Record<string, unknown> | null | undefined = S7e.serialize(instance);
+    if (obj === null || obj === undefined) {
+      throw new Error('Cannot deserialize null or undefined object');
+    }
+    const deserialized = S7e.deserialize(obj, ctor);
     expect(deserialized).toBeInstanceOf(ctor);
-    return { json, deserialized };
+    return { obj, deserialized };
   }
 
   /**

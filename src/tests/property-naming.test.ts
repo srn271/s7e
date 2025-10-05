@@ -14,24 +14,23 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         'High-performance gaming laptop with RTX graphics',
       );
 
-      const json = S7e.serialize(product);
-      const parsed = JSON.parse(json);
+      const obj = S7e.serialize(product);
 
       // Should use JSON property names, not class attribute names
-      expect(parsed).toHaveProperty('product_id', 'PROD-001');
-      expect(parsed).toHaveProperty('product_name', 'Gaming Laptop');
-      expect(parsed).toHaveProperty('unit_price', 1299.99);
-      expect(parsed).toHaveProperty('is_available', true);
-      expect(parsed).toHaveProperty('category_tags', ['electronics', 'computers', 'gaming']);
-      expect(parsed).toHaveProperty('description_text', 'High-performance gaming laptop with RTX graphics');
+      expect(obj).toHaveProperty('product_id', 'PROD-001');
+      expect(obj).toHaveProperty('product_name', 'Gaming Laptop');
+      expect(obj).toHaveProperty('unit_price', 1299.99);
+      expect(obj).toHaveProperty('is_available', true);
+      expect(obj).toHaveProperty('category_tags', ['electronics', 'computers', 'gaming']);
+      expect(obj).toHaveProperty('description_text', 'High-performance gaming laptop with RTX graphics');
 
       // Should NOT have class attribute names
-      expect(parsed).not.toHaveProperty('id');
-      expect(parsed).not.toHaveProperty('title');
-      expect(parsed).not.toHaveProperty('price');
-      expect(parsed).not.toHaveProperty('inStock');
-      expect(parsed).not.toHaveProperty('categories');
-      expect(parsed).not.toHaveProperty('description');
+      expect(obj).not.toHaveProperty('id');
+      expect(obj).not.toHaveProperty('title');
+      expect(obj).not.toHaveProperty('price');
+      expect(obj).not.toHaveProperty('inStock');
+      expect(obj).not.toHaveProperty('categories');
+      expect(obj).not.toHaveProperty('description');
 
       // Should not include non-serializable properties (none in this fixture)
     });
@@ -46,17 +45,16 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         // description intentionally omitted (undefined)
       );
 
-      const json = S7e.serialize(product);
-      const parsed = JSON.parse(json);
+      const obj = S7e.serialize(product);
 
-      expect(parsed).toHaveProperty('product_id', 'PROD-002');
-      expect(parsed).toHaveProperty('product_name', 'Wireless Mouse');
-      expect(parsed).toHaveProperty('unit_price', 29.99);
-      expect(parsed).toHaveProperty('is_available', true);
-      expect(parsed).toHaveProperty('category_tags', ['electronics', 'accessories']);
+      expect(obj).toHaveProperty('product_id', 'PROD-002');
+      expect(obj).toHaveProperty('product_name', 'Wireless Mouse');
+      expect(obj).toHaveProperty('unit_price', 29.99);
+      expect(obj).toHaveProperty('is_available', true);
+      expect(obj).toHaveProperty('category_tags', ['electronics', 'accessories']);
 
       // Optional property should be omitted when undefined
-      expect(parsed).not.toHaveProperty('description_text');
+      expect(obj).not.toHaveProperty('description_text');
     });
 
     test('should include defined optional properties in serialization', () => {
@@ -69,15 +67,14 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         'RGB mechanical keyboard with Cherry MX switches',
       );
 
-      const json = S7e.serialize(product);
-      const parsed = JSON.parse(json);
+      const obj = S7e.serialize(product);
 
-      expect(parsed).toHaveProperty('product_id', 'PROD-003');
-      expect(parsed).toHaveProperty('product_name', 'Mechanical Keyboard');
-      expect(parsed).toHaveProperty('unit_price', 149.99);
-      expect(parsed).toHaveProperty('is_available', false);
-      expect(parsed).toHaveProperty('category_tags', ['electronics', 'accessories']);
-      expect(parsed).toHaveProperty('description_text', 'RGB mechanical keyboard with Cherry MX switches');
+      expect(obj).toHaveProperty('product_id', 'PROD-003');
+      expect(obj).toHaveProperty('product_name', 'Mechanical Keyboard');
+      expect(obj).toHaveProperty('unit_price', 149.99);
+      expect(obj).toHaveProperty('is_available', false);
+      expect(obj).toHaveProperty('category_tags', ['electronics', 'accessories']);
+      expect(obj).toHaveProperty('description_text', 'RGB mechanical keyboard with Cherry MX switches');
     });
   });
 
@@ -169,10 +166,10 @@ describe('Different Property Names - Serialization and Deserialization', () => {
       );
 
       // Serialize
-      const json = S7e.serialize(original);
+      const obj = S7e.serialize(original) as Record<string, unknown>;
 
       // Deserialize
-      const restored = S7e.deserialize(json, Product);
+      const restored = S7e.deserialize(obj, Product);
 
       // Verify all serializable properties are preserved
       expect(restored.id).toBe(original.id);
@@ -193,8 +190,8 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         // description intentionally undefined
       );
 
-      const json = S7e.serialize(original);
-      const restored = S7e.deserialize(json, Product);
+      const obj = S7e.serialize(original) as Record<string, unknown>;
+      const restored = S7e.deserialize(obj, Product);
 
       expect(restored.id).toBe(original.id);
       expect(restored.title).toBe(original.title);
@@ -237,11 +234,10 @@ describe('Different Property Names - Serialization and Deserialization', () => {
         '1080p HD webcam with auto-focus',
       );
 
-      const json = S7e.serialize(product);
-      const parsed = JSON.parse(json);
+      const obj = S7e.serialize(product);
 
       // Should match expected API format
-      expect(parsed).toEqual({
+      expect(obj).toEqual({
         product_id: 'API-002',
         product_name: 'Webcam HD',
         unit_price: 89.99,

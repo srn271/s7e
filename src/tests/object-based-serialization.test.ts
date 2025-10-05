@@ -50,7 +50,7 @@ describe('Object-Based Serialization Tests', () => {
       instance.metadata = { category: 'unit-test', priority: 'high' };
 
       // Test object-based serialization
-      const obj = S7e.serializeToObject(instance);
+      const obj = S7e.serialize(instance);
 
       // Verify the result is a plain object
       expect(typeof obj).toBe('object');
@@ -65,16 +65,18 @@ describe('Object-Based Serialization Tests', () => {
         metadata: { category: 'unit-test', priority: 'high' },
       });
 
-      // Verify it's the same as the JSON-based approach
-      const jsonSerialized = JSON.parse(S7e.serialize(instance));
+      // Verify it's the same as converting to JSON and back
+      const serializedObj = S7e.serialize(instance);
+      const jsonString = JSON.stringify(serializedObj);
+      const jsonSerialized = JSON.parse(jsonString);
       expect(obj).toEqual(jsonSerialized);
     });
 
     test('should handle null/undefined values', () => {
-      const nullResult = S7e.serializeToObject(null);
+      const nullResult = S7e.serialize(null);
       expect(nullResult).toBeNull();
 
-      const undefinedResult = S7e.serializeToObject(undefined);
+      const undefinedResult = S7e.serialize(undefined);
       expect(undefinedResult).toBeUndefined();
     });
   });
@@ -92,7 +94,7 @@ describe('Object-Based Serialization Tests', () => {
       };
 
       // Test object-based deserialization
-      const result = S7e.deserializeFromObject(obj, PerformanceTestClass);
+      const result = S7e.deserialize(obj, PerformanceTestClass);
 
       // Verify the result
       expect(result).toBeInstanceOf(PerformanceTestClass);
@@ -124,7 +126,7 @@ describe('Object-Based Serialization Tests', () => {
         metadata: { method: 'by-name' },
       };
 
-      const result = S7e.deserializeFromObject(obj, 'PerformanceTestClass');
+      const result = S7e.deserialize(obj, 'PerformanceTestClass');
 
       expect(result).toBeInstanceOf(PerformanceTestClass);
       expect((result as PerformanceTestClass).id).toBe('test-789');
@@ -142,7 +144,7 @@ describe('Object-Based Serialization Tests', () => {
         metadata: { auto: 'detection' },
       };
 
-      const result = S7e.deserializeFromObject(obj);
+      const result = S7e.deserialize(obj);
 
       expect(result).toBeInstanceOf(PerformanceTestClass);
       expect((result as PerformanceTestClass).id).toBe('test-discriminator');
@@ -171,7 +173,7 @@ describe('Object-Based Serialization Tests', () => {
         },
       ];
 
-      const result = S7e.deserializeFromObject(arrayObj, [PerformanceTestClass]);
+      const result = S7e.deserialize(arrayObj, [PerformanceTestClass]);
 
       expect(Array.isArray(result)).toBe(true);
       expect(result).toHaveLength(2);
@@ -205,7 +207,7 @@ describe('Object-Based Serialization Tests', () => {
       container.items = [item1, item2];
 
       // Serialize to object
-      const obj = S7e.serializeToObject(container);
+      const obj = S7e.serialize(container);
 
       // Verify structure
       expect(obj).toEqual({
@@ -234,7 +236,7 @@ describe('Object-Based Serialization Tests', () => {
       });
 
       // Deserialize from object
-      const result = S7e.deserializeFromObject(obj as Record<string, unknown>, NestedTestClass);
+      const result = S7e.deserialize(obj as Record<string, unknown>, NestedTestClass);
 
       expect(result).toBeInstanceOf(NestedTestClass);
       expect(result.id).toBe('container-1');
@@ -257,22 +259,23 @@ describe('Object-Based Serialization Tests', () => {
       instance.metadata = { test: 'json-compatibility' };
 
       // Both approaches should produce the same results
-      const jsonString = S7e.serialize(instance);
-      const objResult = S7e.serializeToObject(instance);
+      const serializedObj = S7e.serialize(instance);
+      const objResult = serializedObj;
+      const jsonString = JSON.stringify(serializedObj);
       const jsonParsed = JSON.parse(jsonString);
 
       expect(objResult).toEqual(jsonParsed);
 
       // Both deserialize approaches should produce the same results
+      const fromObj = S7e.deserialize(objResult as Record<string, unknown>, PerformanceTestClass);
       const fromJson = S7e.deserialize(jsonString, PerformanceTestClass);
-      const fromObj = S7e.deserializeFromObject(objResult as Record<string, unknown>, PerformanceTestClass);
 
-      expect(fromJson.id).toBe(fromObj.id);
-      expect(fromJson.name).toBe(fromObj.name);
-      expect(fromJson.value).toBe(fromObj.value);
-      expect(fromJson.active).toBe(fromObj.active);
-      expect(fromJson.tags).toEqual(fromObj.tags);
-      expect(fromJson.metadata).toEqual(fromObj.metadata);
+      expect(fromObj.id).toBe(fromJson.id);
+      expect(fromObj.name).toBe(fromJson.name);
+      expect(fromObj.value).toBe(fromJson.value);
+      expect(fromObj.active).toBe(fromJson.active);
+      expect(fromObj.tags).toEqual(fromJson.tags);
+      expect(fromObj.metadata).toEqual(fromJson.metadata);
     });
   });
 });
