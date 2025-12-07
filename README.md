@@ -147,6 +147,7 @@ MIT © [srn271](https://github.com/srn271)
 
 
 
+### `S7e.serialize<T>(instance: T): Record<string, unknown>`
 Serializes a class instance to a plain object (POJO).
 - Only properties marked with `@JsonProperty` are included
 - Undefined optional properties are automatically skipped
