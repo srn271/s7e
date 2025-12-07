@@ -60,7 +60,7 @@ describe('Serialize with `cls` parameter', () => {
   test('should maintain backward compatibility when cls parameter is not provided', () => {
     const rectangle = new Rectangle('rect-1', 10, 20);
 
-    // Test that both serialize methods produce consistent results
+    // Test serialization without cls parameter
     const serializedResult = S7e.serialize(rectangle);
 
     expect(serializedResult).toEqual({
