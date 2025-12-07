@@ -1,3 +1,4 @@
+import type { Converter } from '../types/converter.type';
 import type { TypeConstructor } from '../types/type-constructor.type';
 
 /**
@@ -25,4 +26,11 @@ export interface JsonPropertyOptions {
    * and missing optional properties during deserialization will retain their default values.
    */
   optional?: boolean;
+
+  /**
+   * Custom converter for serialization/deserialization of this property.
+   * Useful for converting third-party types or custom data structures.
+   * When provided, this converter takes precedence over the default type-based conversion.
+   */
+  converter?: Converter<any, any, any>;
 }

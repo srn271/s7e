@@ -104,6 +104,7 @@ export default defineConfig({
           { text: 'Array Handling', link: '/examples/arrays' },
           { text: 'Optional Properties', link: '/examples/optional-properties' },
           { text: 'Custom Naming', link: '/examples/custom-naming' },
+          { text: 'Custom Converters', link: '/examples/custom-converters' },
           { text: 'Type Validation', link: '/examples/type-validation' },
         ],
       },

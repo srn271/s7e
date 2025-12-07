@@ -69,6 +69,7 @@ export class S7e {
    * @param instance - The class instance to serialize.
    * @returns The plain object representation of the instance.
    */
+  public static serialize<T extends object>(instance: T): Record<string, unknown>;
   public static serialize<T extends object>(instance: T | null | undefined): Record<string, unknown> | null | undefined;
 
   /**
@@ -77,6 +78,7 @@ export class S7e {
    * @param cls - The class constructor to use (takes precedence over discriminator).
    * @returns The plain object representation of the instance.
    */
+  public static serialize<T extends object>(instance: T, cls: ClassConstructor<T>): Record<string, unknown>;
   public static serialize<T extends object>(instance: T | null | undefined, cls: ClassConstructor<T>): Record<string, unknown> | null | undefined;
 
   /**
@@ -84,6 +86,7 @@ export class S7e {
    * @param instances - The array of class instances to serialize.
    * @returns The array of plain object representations.
    */
+  public static serialize<T extends object>(instances: T[]): Record<string, unknown>[];
   public static serialize<T extends object>(instances: (T | null | undefined)[]): (Record<string, unknown> | null | undefined)[];
 
   /**
@@ -92,6 +95,7 @@ export class S7e {
    * @param cls - The class constructor to use for all instances.
    * @returns The array of plain object representations.
    */
+  public static serialize<T extends object>(instances: T[], cls: ClassConstructor<T>): Record<string, unknown>[];
   public static serialize<T extends object>(instances: (T | null | undefined)[], cls: ClassConstructor<T>): (Record<string, unknown> | null | undefined)[];
 
   /**
@@ -138,7 +142,7 @@ export class S7e {
         continue; // skip undefined optional properties
       }
 
-      obj[property.jsonName] = S7e.serializeValue(options, value);
+      obj[property.jsonName] = S7e.serializeValue(options, value, instance);
     }
     return obj;
   }
@@ -314,7 +318,7 @@ export class S7e {
 
       const jsonValue: unknown = obj[property.jsonName];
       S7e.validateType(options, jsonValue, property.jsonName);
-      const value = S7e.deserializeValue(options, jsonValue);
+      const value = S7e.deserializeValue(options, jsonValue, instance);
       (instance as any)[property.name] = value;
     }
   }
@@ -356,10 +360,33 @@ export class S7e {
     });
   }
 
-  private static serializeValue(
+  private static serializeValue<T extends object>(
     options: JsonPropertyOptions | undefined,
     value: unknown,
+    instance: T,
   ): unknown {
+    // Use custom converter if provided
+    if (isNotNil(options?.converter)) {
+      const context = {
+        parent: instance,
+        propertyName: options.name,
+      };
+
+      // Handle array with converter
+      if (Array.isArray(value)) {
+        return value.map((item: unknown): unknown => {
+          return isNil(item)
+            ? item
+            : options.converter!.serialize(item, context);
+        });
+      }
+      // Handle single value with converter
+      if (isNotNil(value)) {
+        return options.converter.serialize(value, context);
+      }
+      return value;
+    }
+
     // Handle array serialization
     if (options?.type && TypeUtils.isArrayTypeConstructor(options.type) && Array.isArray(value)) {
       return value.map((item: unknown): unknown => {
@@ -390,10 +417,32 @@ export class S7e {
     return value;
   }
 
-  private static deserializeValue(
+  private static deserializeValue<T extends object>(
     options: JsonPropertyOptions,
     jsonValue: unknown,
+    instance: T,
   ): unknown {
+    // Use custom converter if provided
+    if (isNotNil(options.converter)) {
+      const context = {
+        parent: instance,
+        propertyName: options.name,
+      };
+      // Handle array with converter
+      if (Array.isArray(jsonValue)) {
+        return jsonValue.map((item: unknown): unknown => {
+          return isNil(item)
+            ? item
+            : options.converter!.deserialize(item, context);
+        });
+      }
+      // Handle single value with converter
+      if (isNotNil(jsonValue)) {
+        return options.converter.deserialize(jsonValue, context);
+      }
+      return jsonValue;
+    }
+
     // If no type is provided, try to infer from the value
     if (isNil(options.type)) {
       return S7e.deserializeValueWithoutType(jsonValue);
