@@ -133,9 +133,9 @@ const user4 = S7e.deserialize(jsonString); // Uses $type property
 const arrayJson = '[{"$type":"User","id":1},{"$type":"Admin","id":2}]';
 const users = S7e.deserialize(arrayJson, [User]); // Returns mixed User/Admin instances
 
-console.log(user instanceof User); // true
-console.log(user.id); // 1
-console.log(user.name); // "John Doe"
+console.log(user2 instanceof User); // true
+console.log(user2.id); // 1
+console.log(user2.name); // "John Doe"
 ```
 
 ## Polymorphic Serialization Methods
