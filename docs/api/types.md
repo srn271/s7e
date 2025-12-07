@@ -85,6 +85,125 @@ public users: User[];
 
 ---
 
+### ConverterContext
+
+Context information passed to converter methods during serialization and deserialization.
+
+#### Definition
+
+```typescript
+interface ConverterContext {
+  parent: object;
+  propertyName: string;
+}
+```
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `parent` | `object` | The parent object containing the property being converted. Always provided for both single values and array elements. |
+| `propertyName` | `string` | The name of the property being converted (JSON name). Always provided for both single values and array elements. |
+
+#### Usage
+
+Context is always provided to converters and allows them to access the parent object and make decisions based on other properties:
+
+```typescript
+const contextAwareConverter: Converter<number, string> = {
+  serialize: (value: number, context: ConverterContext) => {
+    // parent and propertyName are always available
+    const parent = context.parent as any;
+    if (parent.formatAsPercentage) {
+      return `${(value * 100).toFixed(0)}%`;
+    }
+    return value.toString();
+  },
+  deserialize: (value: string, context: ConverterContext) => {
+    return value.endsWith('%') 
+      ? parseFloat(value.replace('%', '')) / 100
+      : parseFloat(value);
+  }
+};
+```
+
+---
+
+### Converter&lt;T, S&gt;
+
+Interface for custom property converters that handle serialization and deserialization of specific types.
+
+#### Definition
+
+```typescript
+interface Converter<T = any, S = any> {
+  serialize: (value: T, context: ConverterContext) => S;
+  deserialize: (value: S, context: ConverterContext) => T;
+}
+```
+
+#### Type Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `T` | The TypeScript type of the property |
+| `S` | The serialized type (usually string, number, or plain object) |
+
+#### Methods
+
+| Method | Parameters | Returns | Description |
+|--------|-----------|---------|-------------|
+| `serialize` | `value: T, context: ConverterContext` | `S` | Converts a TypeScript value to its serialized representation |
+| `deserialize` | `value: S, context: ConverterContext` | `T` | Converts a serialized value back to its TypeScript representation |
+
+#### Usage
+
+```typescript
+// Simple Date converter (context parameter required but not used)
+const dateConverter: Converter<Date, string> = {
+  serialize: (value: Date, context: ConverterContext) => value.toISOString(),
+  deserialize: (value: string, context: ConverterContext) => new Date(value)
+};
+
+// Luxon DateTime converter (context parameter required but not used)
+import { DateTime } from 'luxon';
+
+const dateTimeConverter: Converter<DateTime, string> = {
+  serialize: (value: DateTime, context: ConverterContext) => value.toISO(),
+  deserialize: (value: string, context: ConverterContext) => DateTime.fromISO(value)
+};
+
+// Context-aware converter
+const conditionalConverter: Converter<number, string> = {
+  serialize: (value: number, context: ConverterContext) => {
+    // Access parent to make conversion decisions
+    const parent = context.parent as any;
+    if (parent?.usePercentage) {
+      return `${value * 100}%`;
+    }
+    return value.toString();
+  },
+  deserialize: (value: string, context: ConverterContext) => {
+    return value.endsWith('%')
+      ? parseFloat(value) / 100
+      : parseFloat(value);
+  }
+};
+
+// Use with @JsonProperty
+class Event {
+  @JsonProperty({ name: 'scheduledAt', converter: dateTimeConverter })
+  public scheduledAt: DateTime;
+  
+  @JsonProperty({ name: 'progress', converter: conditionalConverter })
+  public progress: number;
+}
+```
+
+See [Custom Converters](/examples/custom-converters) for more examples and best practices.
+
+---
+
 ### PropertyMapping
 
 Internal type used to map class property names to JSON property names.
@@ -184,6 +303,9 @@ interface JsonPropertyOptions {
 
   /** Whether the property is optional (default: false) */
   optional?: boolean;
+
+  /** Custom converter for serialization/deserialization */
+  converter?: Converter;
 }
 ```
 
@@ -194,6 +316,7 @@ interface JsonPropertyOptions {
 | `name` | `string` | Yes | - | JSON property name for serialization |
 | `type` | `TypeConstructor \| [TypeConstructor]` | No | Inferred | Type constructor for validation and deserialization |
 | `optional` | `boolean` | No | `false` | Whether the property can be omitted from JSON |
+| `converter` | `Converter` | No | - | Custom converter for third-party types (e.g., DateTime) |
 
 #### Usage Examples
 
@@ -241,6 +364,22 @@ public profile: UserProfile;
 
 @JsonProperty({ name: 'settings', type: UserSettings, optional: true })
 public settings?: UserSettings;
+```
+
+##### Properties with Custom Converters
+
+```typescript
+// Define a converter
+const dateTimeConverter: Converter<DateTime, string> = {
+  serialize: (value: DateTime) => value.toISO(),
+  deserialize: (value: string) => DateTime.fromISO(value)
+};
+
+@JsonProperty({ name: 'createdAt', converter: dateTimeConverter })
+public createdAt: DateTime;
+
+@JsonProperty({ name: 'scheduledDates', converter: dateTimeConverter })
+public scheduledDates: DateTime[];
 ```
 
 ## Type Validation

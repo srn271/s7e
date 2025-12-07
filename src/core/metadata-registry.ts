@@ -61,7 +61,9 @@ export class MetadataRegistry {
   public static getProperties(ctor: ClassConstructor): Array<PropertyMapping> {
     MetadataRegistry.ensureMetadataInitialized(ctor);
     const metadata: JsonPropertyMetadata | undefined = MetadataRegistry.propertyMetadata.get(ctor);
-    return metadata ? metadata.properties : [];
+    return metadata
+      ? metadata.properties
+      : [];
   }
 
   /**
@@ -69,8 +71,10 @@ export class MetadataRegistry {
    */
   public static getPropertyOptions(ctor: ClassConstructor, propertyName: string): JsonPropertyOptions | undefined {
     MetadataRegistry.ensureMetadataInitialized(ctor);
-    const metadata = MetadataRegistry.propertyMetadata.get(ctor);
-    return metadata ? metadata.options[propertyName] : undefined;
+    const metadata: JsonPropertyMetadata | undefined = MetadataRegistry.propertyMetadata.get(ctor);
+    return metadata
+      ? metadata.options[propertyName]
+      : undefined;
   }
 
   /**
