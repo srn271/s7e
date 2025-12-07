@@ -115,7 +115,8 @@ const users = [
 // Serialize array to JSON
 const jsonArray = S7e.serialize(users);
 console.log(jsonArray);
-// Output: '[{"id":1,"name":"John Doe",...},{"id":2,"name":"Jane Smith",...},...]'
+// Output: [{id:1, name:"John Doe", ...}, {id:2, name:"Jane Smith", ...}, ...]
+// (To get a JSON string, use JSON.stringify(jsonArray))
 ```
 
 ### Deserializing Arrays
