@@ -41,7 +41,7 @@ export class TestUtils {
   }
 
   /**
-   * Helper to parse and validate JSON structure
+   * Helper to validate the structure of an object against expected properties
    */
   public static expectObjectToHaveStructure(obj: Record<string, unknown>, expectedStructure: Record<string, any>) {
     Object.entries(expectedStructure).forEach(([key, value]) => {
