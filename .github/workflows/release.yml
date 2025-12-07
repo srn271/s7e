@@ -3,9 +3,17 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      release-type:
-        description: 'Release type'
+      action:
+        description: 'Action to perform'
         required: true
+        default: 'bump-and-publish'
+        type: choice
+        options:
+          - bump-and-publish
+          - publish-only
+      release-type:
+        description: 'Release type (only used for bump-and-publish)'
+        required: false
         default: 'patch'
         type: choice
         options:
@@ -56,24 +64,29 @@ jobs:
         git config --local user.name "GitHub Action"
 
     - name: Bump version
+      if: github.event.inputs.action == 'bump-and-publish'
       run: npm version ${{ github.event.inputs.release-type }} --no-git-tag-version
 
     - name: Get package version
+      if: github.event.inputs.action == 'bump-and-publish'
       id: package-version
       run: echo "version=$(npm pkg get version | tr -d '"')" >> $GITHUB_OUTPUT
 
     - name: Commit version bump
+      if: github.event.inputs.action == 'bump-and-publish'
       run: |
         git add package.json
         git commit -m "chore: bump version to ${{ steps.package-version.outputs.version }}"
         git tag "v${{ steps.package-version.outputs.version }}"
 
     - name: Push changes
+      if: github.event.inputs.action == 'bump-and-publish'
       run: |
         git push origin main
         git push origin "v${{ steps.package-version.outputs.version }}"
 
     - name: Create GitHub Release
+      if: github.event.inputs.action == 'bump-and-publish'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: "v${{ steps.package-version.outputs.version }}"
