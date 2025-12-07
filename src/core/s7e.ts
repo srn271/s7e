@@ -80,9 +80,42 @@ export class S7e {
   public static serialize<T extends object>(instance: T | null | undefined, cls: ClassConstructor<T>): Record<string, unknown> | null | undefined;
 
   /**
+   * Serialize an array of class instances to an array of plain objects.
+   * @param instances - The array of class instances to serialize.
+   * @returns The array of plain object representations.
+   */
+  public static serialize<T extends object>(instances: T[]): Record<string, unknown>[];
+
+  /**
+   * Serialize an array of class instances to an array of plain objects with explicit class constructor.
+   * @param instances - The array of class instances to serialize.
+   * @param cls - The class constructor to use for all instances.
+   * @returns The array of plain object representations.
+   */
+  public static serialize<T extends object>(instances: T[], cls: ClassConstructor<T>): Record<string, unknown>[];
+
+  /**
    * Implementation of the overloaded serialize method.
    */
-  public static serialize<T extends object>(instance: T | null | undefined, cls?: ClassConstructor<any>): Record<string, unknown> | null | undefined {
+  public static serialize<T extends object>(
+    instanceOrArray: T | null | undefined | T[],
+    cls?: ClassConstructor<any>,
+  ): Record<string, unknown> | null | undefined | Record<string, unknown>[] {
+    if (Array.isArray(instanceOrArray)) {
+      return instanceOrArray.map((instance: T): Record<string, unknown> => {
+        return S7e.serializeSingle(instance, cls) as Record<string, unknown>;
+      });
+    }
+    return S7e.serializeSingle(instanceOrArray, cls);
+  }
+
+  /**
+   * Serialize a single instance to a plain object.
+   */
+  private static serializeSingle<T extends object>(
+    instance: T | null | undefined,
+    cls?: ClassConstructor<any>,
+  ): Record<string, unknown> | null | undefined {
     if (isNil(instance)) {
       return instance;
     }
@@ -334,7 +367,7 @@ export class S7e {
         if (isNotNil(item) && typeof item === 'object' && typeof item.constructor === 'function'
           && MetadataRegistry.getProperties(item.constructor as ClassConstructor).length > 0
         ) {
-          return S7e.serialize(item);
+          return S7e.serializeSingle(item);
         }
         return item;
       });
@@ -347,7 +380,7 @@ export class S7e {
         if (isNotNil(item) && typeof item === 'object' && typeof item.constructor === 'function'
           && MetadataRegistry.getProperties(item.constructor as ClassConstructor).length > 0
         ) {
-          return S7e.serialize(item);
+          return S7e.serializeSingle(item);
         }
         return item;
       });
