@@ -65,7 +65,7 @@ console.log('Original user:', user);
 // Serialize to object
 const obj = S7e.serialize(user);
 console.log('Object:', obj);
-// Output: {$type:"User",id:1234,username:"john_doe",email:"john@example.com",isActive:true,createdAt:"2025-01-29T10:00:00Z"}
+// Output: { "$type": "User", "id": 1234, "username": "john_doe", "email": "john@example.com", "isActive": true, "createdAt": "2025-01-29T10:00:00Z" }
 
 // Convert to JSON string if needed
 const jsonString = JSON.stringify(obj);
