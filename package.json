@@ -1,6 +1,6 @@
 {
   "name": "s7e",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A TypeScript library for de-/serialization of TypeScript classes to and from JSON.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
