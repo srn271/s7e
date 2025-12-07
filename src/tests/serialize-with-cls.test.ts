@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { S7e } from '../core/s7e';
 import { Car, Circle, Rectangle, Shape, Vehicle } from './discriminator.fixture';
-import { TestUtils } from './test-utils';
 
 describe('Serialize with `cls` parameter', () => {
 
