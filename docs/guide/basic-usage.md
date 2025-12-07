@@ -113,7 +113,7 @@ const users = [
 ];
 
 // Serialize array to JSON
-const jsonArray = S7e.serializeArray(users);
+const jsonArray = S7e.serialize(users);
 console.log(jsonArray);
 // Output: '[{"id":1,"name":"John Doe",...},{"id":2,"name":"Jane Smith",...},...]'
 ```
@@ -127,7 +127,7 @@ const jsonArrayData = `[
 ]`;
 
 // Deserialize array from JSON
-const users = S7e.deserializeArray(User, jsonArrayData);
+const users = S7e.deserialize(jsonArrayData, [User]);
 
 console.log(Array.isArray(users)); // true
 console.log(users.length); // 2

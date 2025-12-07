@@ -64,14 +64,18 @@ class User {
   }
 }
 
-// Serialize
+// Serialize to object
 const user = new User(1, 'John Doe', 'john@example.com');
-const json = S7e.serialize(user);
-console.log(json);
-// Output: '{"$type":"User","id":1,"name":"John Doe","email":"john@example.com"}'
+const obj = S7e.serialize(user);
+console.log(obj);
+// Output: { $type: "User", id: 1, name: "John Doe", email: "john@example.com" }
 
-// Deserialize
-const deserializedUser = S7e.deserialize(User, json);
+// Convert to JSON string if needed
+const json = JSON.stringify(obj);
+
+// Deserialize from object or JSON string
+const deserializedUser = S7e.deserialize(obj, User);
+// or: const deserializedUser = S7e.deserialize(json, User);
 console.log(deserializedUser instanceof User); // true
 ```
 
@@ -108,8 +112,8 @@ class Dog extends Animal {
 S7e.registerTypes([Dog]);
 
 const animals = [new Dog()];
-const json = S7e.serializeArray(animals);
-const deserialized = S7e.deserializeArray(Animal, json);
+const serializedArray = S7e.serialize(animals);
+const deserialized = S7e.deserialize(serializedArray, [Animal]);
 console.log(deserialized[0] instanceof Dog); // true
 ```
 
@@ -143,14 +147,15 @@ MIT © [srn271](https://github.com/srn271)
 
 
 
-Serializes a class instance to a JSON string.
+Serializes a class instance to a plain object (POJO).
 - Only properties marked with `@JsonProperty` are included
 - Undefined optional properties are automatically skipped
+- Returns an object that can be converted to JSON with `JSON.stringify()`
 
-### `S7e.deserialize<T>(json: string, cls: Constructor<T>): T`
-### `S7e.deserialize(json: string, className: string): any` *(Future)*
+### `S7e.deserialize<T>(json: string | object, cls: Constructor<T>): T`
+### `S7e.deserialize(json: string | object, className: string): any`
 
-Deserializes a JSON string to a class instance.
+Deserializes a JSON string or object to a class instance.
 
 **Method 1 - Direct Constructor Reference:**
 - Creates a new instance using the provided constructor
@@ -158,10 +163,14 @@ Deserializes a JSON string to a class instance.
 - Validates types if specified in the decorator
 - Throws error if required properties are missing
 
-**Method 2 - String Class Name (Future):**
+**Method 2 - String Class Name:**
 - Looks up the class constructor using the `@JsonClass` name from the type registry
 - Enables dynamic type resolution without importing the class
 - Useful for polymorphic deserialization and plugin architectures
+
+**Method 3 - Discriminator-based (no second parameter):**
+- Automatically resolves type from `$type` discriminator property in the object
+- Requires types to be registered with `S7e.registerTypes()`
 
 ## 💡 Best Practices
 
@@ -241,8 +250,6 @@ npm run build
 - Custom serialization hooks
 - Schema validation integration
 - Performance optimizations
-
-*Note: String-based class name resolution for deserialization (`S7e.deserialize(json, 'ClassName')`) and discriminator-based polymorphic deserialization are already implemented and working.*
 
 ## 🤝 Contributing
 

@@ -6,23 +6,32 @@ The `S7e` class provides static methods for serializing and deserializing TypeSc
 
 ### serialize()
 
-Converts a class instance to a JSON string.
+Converts a class instance or array of instances to a plain object (POJO) or array of objects.
 
 #### Syntax
 
 ```typescript
-S7e.serialize<T>(instance: T): string
+// Single instance
+S7e.serialize<T>(instance: T): Record<string, unknown> | null | undefined
+S7e.serialize<T>(instance: T, cls: ClassConstructor<T>): Record<string, unknown> | null | undefined
+
+// Array of instances
+S7e.serialize<T>(instances: T[]): Record<string, unknown>[]
+S7e.serialize<T>(instances: T[], cls: ClassConstructor<T>): Record<string, unknown>[]
 ```
 
 #### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `instance` | `T` | The class instance to serialize |
+| `instance` | `T \| null \| undefined` | The class instance to serialize |
+| `instances` | `T[]` | Array of class instances to serialize |
+| `cls` | `ClassConstructor<T>` | Optional. Explicit class constructor to use for serialization |
 
 #### Returns
 
-`string` - JSON string representation of the instance
+- `Record<string, unknown> | null | undefined` - For single instances
+- `Record<string, unknown>[]` - For arrays
 
 #### Example
 
@@ -40,153 +49,93 @@ const user = new User();
 user.id = 1;
 user.name = 'John Doe';
 
-const json = S7e.serialize(user);
-console.log(json);
-// Output: '{"$type":"User","id":1,"name":"John Doe"}'
-```
-
----
-
-### serializeToObject()
-
-Converts a class instance to a plain JavaScript object (POJO).
-
-#### Syntax
-
-```typescript
-S7e.serializeToObject<T>(instance: T): Record<string, unknown> | null | undefined
-```
-
-#### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `instance` | `T` | The class instance to serialize |
-
-#### Returns
-
-`Record<string, unknown> | null | undefined` - Plain object representation
-
-#### Example
-
-```typescript
-const user = new User();
-user.id = 1;
-user.name = 'John Doe';
-
-const obj = S7e.serializeToObject(user);
+const obj = S7e.serialize(user);
 console.log(obj);
-// Output: { $type: 'User', id: 1, name: 'John Doe' }
+// Output: { $type: "User", id: 1, name: "John Doe" }
+
+// Convert to JSON string if needed
+const json = JSON.stringify(obj);
+
+// Example with explicit class parameter
+const baseObj = S7e.serialize(user, BaseUser);
+// Uses BaseUser's properties and discriminator instead of User's
+
+// Array serialization
+const users = [user1, user2, user3];
+const userArray = S7e.serialize(users);
+console.log(userArray);
+// Output: [{ $type: "User", id: 1, name: "John" }, { $type: "User", id: 2, name: "Jane" }, ...]
+
+// Array with explicit class parameter
+const baseArray = S7e.serialize(users, BaseUser);
+// All items serialized using BaseUser schema
 ```
 
----
 
-### serializeArray()
-
-Converts an array of class instances to a JSON string.
-
-#### Syntax
-
-```typescript
-S7e.serializeArray<T>(instances: T[]): string
-```
-
-#### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `instances` | `T[]` | Array of class instances to serialize |
-
-#### Returns
-
-`string` - JSON string representation of the array
-
-#### Example
-
-```typescript
-const users = [
-  new User(1, 'John Doe'),
-  new User(2, 'Jane Smith'),
-  new User(3, 'Bob Johnson')
-];
-
-const jsonArray = S7e.serializeArray(users);
-console.log(jsonArray);
-// Output: '[{"$type":"User","id":1,"name":"John Doe"},{"$type":"User","id":2,"name":"Jane Smith"},{"$type":"User","id":3,"name":"Bob Johnson"}]'
-```
 
 ---
 
 ### deserialize()
 
-Converts a JSON string to a class instance.
+Converts a JSON string or object to a class instance.
 
 #### Syntax
 
 ```typescript
-S7e.deserialize<T>(type: ClassConstructor<T>, json: string): T
+// From JSON string or object with explicit class constructor
+S7e.deserialize<T>(json: string | Record<string, unknown>, cls: ClassConstructor<T>): T
+
+// From JSON string or object with class name
+S7e.deserialize(json: string | Record<string, unknown>, className: string): object
+
+// From array with polymorphic type resolution
+S7e.deserialize<T>(json: string | Record<string, unknown>[], cls: [ClassConstructor<T>]): T[]
+
+// From discriminator only (automatic type resolution)
+S7e.deserialize(json: string | Record<string, unknown>): object
 ```
 
 #### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `type` | `ClassConstructor<T>` | The class constructor to deserialize to |
-| `json` | `string` | JSON string to deserialize |
+| `json` | `string \| Record<string, unknown> \| Record<string, unknown>[]` | JSON string, object, or array to deserialize |
+| `cls` | `ClassConstructor<T> \| string \| [ClassConstructor<T>]` | Class constructor, class name, or array wrapper for polymorphic deserialization |
 
 #### Returns
 
-`T` - Instance of the specified class
+`T | object | T[]` - Instance(s) of the specified class(es)
 
 #### Throws
 
-- `Error` - If JSON is invalid or type validation fails
+- `Error` - If JSON is invalid, type validation fails, or class is not registered
 - `TypeError` - If required properties are missing or have wrong types
 
-#### Example
+#### Examples
 
 ```typescript
-const jsonString = '{"id":1,"name":"John Doe"}';
-const user = S7e.deserialize(User, jsonString);
+// From JSON string
+const jsonString = '{"$type":"User","id":1,"name":"John Doe"}';
+const user1 = S7e.deserialize(jsonString, User);
+
+// From object
+const obj = { $type: "User", id: 1, name: "John Doe" };
+const user2 = S7e.deserialize(obj, User);
+
+// Using class name (requires registration)
+S7e.registerTypes([User]);
+const user3 = S7e.deserialize(jsonString, 'User');
+
+// Automatic type resolution from discriminator
+const user4 = S7e.deserialize(jsonString); // Uses $type property
+
+// Polymorphic array deserialization
+const arrayJson = '[{"$type":"User","id":1},{"$type":"Admin","id":2}]';
+const users = S7e.deserialize(arrayJson, [User]); // Returns mixed User/Admin instances
 
 console.log(user instanceof User); // true
 console.log(user.id); // 1
 console.log(user.name); // "John Doe"
-```
-
----
-
-### deserializeArray()
-
-Converts a JSON string to an array of class instances.
-
-#### Syntax
-
-```typescript
-S7e.deserializeArray<T>(type: ClassConstructor<T>, json: string): T[]
-```
-
-#### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `type` | `ClassConstructor<T>` | The class constructor for array elements |
-| `json` | `string` | JSON string representing an array |
-
-#### Returns
-
-`T[]` - Array of instances of the specified class
-
-#### Example
-
-```typescript
-const jsonArrayString = '[{"id":1,"name":"John"},{"id":2,"name":"Jane"}]';
-const users = S7e.deserializeArray(User, jsonArrayString);
-
-console.log(Array.isArray(users)); // true
-console.log(users.length); // 2
-console.log(users[0] instanceof User); // true
-console.log(users[1].name); // "Jane"
 ```
 
 ## Polymorphic Serialization Methods

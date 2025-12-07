@@ -47,8 +47,8 @@ class User {
   }
 
   // Safe deserialization with validation
-  public static fromJson(json: string): User {
-    const user = S7e.deserialize(User, json);
+  public static fromJson(json: string | Record<string, unknown>): User {
+    const user = S7e.deserialize(json, User);
 
     if (!user.email.includes('@')) {
       throw new Error('Invalid email format');
@@ -62,13 +62,16 @@ class User {
 const user = User.create('john_doe', 'john@example.com');
 console.log('Original user:', user);
 
-// Serialize to JSON
-const jsonString = S7e.serialize(user);
-console.log('JSON:', jsonString);
-// Output: {"id":1234,"username":"john_doe","email":"john@example.com","isActive":true,"createdAt":"2025-01-29T10:00:00Z"}
+// Serialize to object
+const obj = S7e.serialize(user);
+console.log('Object:', obj);
+// Output: {$type:"User",id:1234,username:"john_doe",email:"john@example.com",isActive:true,createdAt:"2025-01-29T10:00:00Z"}
 
-// Deserialize from JSON
-const deserializedUser = User.fromJson(jsonString);
+// Convert to JSON string if needed
+const jsonString = JSON.stringify(obj);
+
+// Deserialize from object or JSON string
+const deserializedUser = User.fromJson(obj); // or User.fromJson(jsonString)
 console.log('Deserialized user:', deserializedUser);
 console.log('Instance check:', deserializedUser instanceof User); // true
 
@@ -79,10 +82,11 @@ const users = [
   User.create('carol', 'carol@example.com')
 ];
 
-const usersJson = S7e.serializeArray(users);
-console.log('Users JSON:', usersJson);
+// Array serialization is built-in
+const usersArray = S7e.serialize(users);
+console.log('Users array:', usersArray);
 
-const deserializedUsers = S7e.deserializeArray(User, usersJson);
+const deserializedUsers = S7e.deserialize(usersArray, [User]);
 console.log('Deserialized users count:', deserializedUsers.length);
 console.log('All are User instances:', deserializedUsers.every(u => u instanceof User));
 ```
