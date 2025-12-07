@@ -63,9 +63,8 @@ describe('Serialize with `cls` parameter', () => {
 
     // Test that both serialize methods produce consistent results
     const serializedResult = S7e.serialize(rectangle);
-    const objResult = serializedResult;
 
-    expect(objResult).toEqual({
+    expect(serializedResult).toEqual({
       $type: 'Rectangle',
       id: 'rect-1',
       width: 10,
