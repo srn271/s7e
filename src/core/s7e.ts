@@ -103,7 +103,7 @@ export class S7e {
   ): Record<string, unknown> | null | undefined | (Record<string, unknown> | null | undefined)[] {
     if (Array.isArray(instanceOrArray)) {
       return instanceOrArray.map((instance: T | null | undefined): Record<string, unknown> | null | undefined => {
-        return S7e.serializeSingle(instance, cls) as Record<string, unknown>;
+        return S7e.serializeSingle(instance, cls);
       });
     }
     return S7e.serializeSingle(instanceOrArray, cls);
