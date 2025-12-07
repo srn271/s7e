@@ -12,26 +12,35 @@ Converts a class instance or array of instances to a plain object (POJO) or arra
 
 ```typescript
 // Single instance
-S7e.serialize<T>(instance: T): Record<string, unknown> | null | undefined
-S7e.serialize<T>(instance: T, cls: ClassConstructor<T>): Record<string, unknown> | null | undefined
+S7e.serialize<T>(instance: T | null | undefined): Record<string, unknown> | null | undefined
+S7e.serialize<T>(instance: T | null | undefined, cls: ClassConstructor<T>): Record<string, unknown> | null | undefined
 
 // Array of instances
-S7e.serialize<T>(instances: T[]): Record<string, unknown>[]
-S7e.serialize<T>(instances: T[], cls: ClassConstructor<T>): Record<string, unknown>[]
+S7e.serialize<T>(instances: (T | null | undefined)[]): (Record<string, unknown> | null | undefined)[]
+S7e.serialize<T>(instances: (T | null | undefined)[], cls: ClassConstructor<T>): (Record<string, unknown> | null | undefined)[]
 ```
 
 #### Parameters
 
+The method has different overloads with different parameter types:
+
+**For Single Instance Overloads:**
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `instance` | `T \| null \| undefined` | The class instance to serialize |
-| `instances` | `T[]` | Array of class instances to serialize |
+| `instance` | `T \| null \| undefined` | The class instance to serialize (can be null or undefined) |
 | `cls` | `ClassConstructor<T>` | Optional. Explicit class constructor to use for serialization |
+
+**For Array Overloads:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `instances` | `(T \| null \| undefined)[]` | Array of class instances to serialize (elements can be null or undefined) |
+| `cls` | `ClassConstructor<T>` | Optional. Explicit class constructor to use for all instances |
 
 #### Returns
 
-- `Record<string, unknown> | null | undefined` - For single instances
-- `Record<string, unknown>[]` - For arrays
+Return type varies based on the overload used:
+- **Single instance:** `Record<string, unknown> | null | undefined`
+- **Array:** `(Record<string, unknown> | null | undefined)[]` (preserves null/undefined elements)
 
 #### Example
 
