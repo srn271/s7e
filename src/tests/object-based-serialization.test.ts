@@ -260,14 +260,13 @@ describe('Object-Based Serialization Tests', () => {
 
       // Both approaches should produce the same results
       const serializedObj = S7e.serialize(instance);
-      const objResult = serializedObj;
       const jsonString = JSON.stringify(serializedObj);
       const jsonParsed = JSON.parse(jsonString);
 
-      expect(objResult).toEqual(jsonParsed);
+      expect(serializedObj).toEqual(jsonParsed);
 
       // Both deserialize approaches should produce the same results
-      const fromObj = S7e.deserialize(objResult as Record<string, unknown>, PerformanceTestClass);
+      const fromObj = S7e.deserialize(serializedObj as Record<string, unknown>, PerformanceTestClass);
       const fromJson = S7e.deserialize(jsonString, PerformanceTestClass);
 
       expect(fromObj.id).toBe(fromJson.id);
