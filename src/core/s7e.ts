@@ -84,7 +84,7 @@ export class S7e {
    * @param instances - The array of class instances to serialize.
    * @returns The array of plain object representations.
    */
-  public static serialize<T extends object>(instances: T[]): Record<string, unknown>[];
+  public static serialize<T extends object>(instances: (T | null | undefined)[]): (Record<string, unknown> | null | undefined)[];
 
   /**
    * Serialize an array of class instances to an array of plain objects with explicit class constructor.
@@ -92,17 +92,17 @@ export class S7e {
    * @param cls - The class constructor to use for all instances.
    * @returns The array of plain object representations.
    */
-  public static serialize<T extends object>(instances: T[], cls: ClassConstructor<T>): Record<string, unknown>[];
+  public static serialize<T extends object>(instances: (T | null | undefined)[], cls: ClassConstructor<T>): (Record<string, unknown> | null | undefined)[];
 
   /**
    * Implementation of the overloaded serialize method.
    */
   public static serialize<T extends object>(
-    instanceOrArray: T | null | undefined | T[],
+    instanceOrArray: T | null | undefined | (T | null | undefined)[],
     cls?: ClassConstructor<any>,
-  ): Record<string, unknown> | null | undefined | Record<string, unknown>[] {
+  ): Record<string, unknown> | null | undefined | (Record<string, unknown> | null | undefined)[] {
     if (Array.isArray(instanceOrArray)) {
-      return instanceOrArray.map((instance: T): Record<string, unknown> => {
+      return instanceOrArray.map((instance: T | null | undefined): Record<string, unknown> | null | undefined => {
         return S7e.serializeSingle(instance, cls) as Record<string, unknown>;
       });
     }
