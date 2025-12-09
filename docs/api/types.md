@@ -371,8 +371,8 @@ public settings?: UserSettings;
 ```typescript
 // Define a converter
 const dateTimeConverter: Converter<DateTime, string> = {
-  serialize: (value: DateTime) => value.toISO(),
-  deserialize: (value: string) => DateTime.fromISO(value)
+  serialize: (value: DateTime, context: ConverterContext) => value.toISO(),
+  deserialize: (value: string, context: ConverterContext) => DateTime.fromISO(value)
 };
 
 @JsonProperty({ name: 'createdAt', converter: dateTimeConverter })
