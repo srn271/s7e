@@ -9,11 +9,11 @@ A converter is an object with two methods:
 - `deserialize`: Converts a JSON value back to its TypeScript representation
 
 ```typescript
-import { Converter } from 's7e';
+import { Converter, ConverterContext } from 's7e';
 
 const dateConverter: Converter<Date, string> = {
-  serialize: (value: Date) => value.toISOString(),
-  deserialize: (value: string) => new Date(value)
+  serialize: (value: Date, context: ConverterContext) => value.toISOString(),
+  deserialize: (value: string, context: ConverterContext) => new Date(value)
 };
 ```
 
@@ -22,12 +22,12 @@ const dateConverter: Converter<Date, string> = {
 Simply add the `converter` option to your `@JsonProperty` decorator:
 
 ```typescript
-import { JsonProperty, S7e, Converter } from 's7e';
+import { JsonProperty, S7e, Converter, ConverterContext } from 's7e';
 
 // Define your converter
 const dateConverter: Converter<Date, string> = {
-  serialize: (value: Date) => value.toISOString(),
-  deserialize: (value: string) => new Date(value)
+  serialize: (value: Date, context: ConverterContext) => value.toISOString(),
+  deserialize: (value: string, context: ConverterContext) => new Date(value)
 };
 
 class Meeting {
@@ -59,11 +59,11 @@ console.log(deserialized.scheduledAt instanceof Date); // true
 
 ```typescript
 import { DateTime } from 'luxon';
-import { Converter, JsonProperty, S7e } from 's7e';
+import { Converter, ConverterContext, JsonProperty, S7e } from 's7e';
 
 const dateTimeConverter: Converter<DateTime, string> = {
-  serialize: (value: DateTime) => value.toISO(),
-  deserialize: (value: string) => DateTime.fromISO(value)
+  serialize: (value: DateTime, context: ConverterContext) => value.toISO(),
+  deserialize: (value: string, context: ConverterContext) => DateTime.fromISO(value)
 };
 
 class Event {
@@ -88,11 +88,11 @@ const restored = S7e.deserialize(obj, Event);
 
 ```typescript
 import { Decimal } from 'decimal.js';
-import { Converter, JsonProperty, S7e } from 's7e';
+import { Converter, ConverterContext, JsonProperty, S7e } from 's7e';
 
 const decimalConverter: Converter<Decimal, string> = {
-  serialize: (value: Decimal) => value.toString(),
-  deserialize: (value: string) => new Decimal(value)
+  serialize: (value: Decimal, context: ConverterContext) => value.toString(),
+  deserialize: (value: string, context: ConverterContext) => new Decimal(value)
 };
 
 class Product {
@@ -114,11 +114,11 @@ class Product {
 Converters work seamlessly with arrays:
 
 ```typescript
-import { Converter, JsonProperty, S7e } from 's7e';
+import { Converter, ConverterContext, JsonProperty, S7e } from 's7e';
 
 const dateConverter: Converter<Date, string> = {
-  serialize: (value: Date) => value.toISOString(),
-  deserialize: (value: string) => new Date(value)
+  serialize: (value: Date, context: ConverterContext) => value.toISOString(),
+  deserialize: (value: string, context: ConverterContext) => new Date(value)
 };
 
 class Schedule {
@@ -153,11 +153,11 @@ console.log(obj);
 Converters work with optional properties:
 
 ```typescript
-import { Converter, JsonProperty, S7e } from 's7e';
+import { Converter, ConverterContext, JsonProperty, S7e } from 's7e';
 
 const dateConverter: Converter<Date, string> = {
-  serialize: (value: Date) => value.toISOString(),
-  deserialize: (value: string) => new Date(value)
+  serialize: (value: Date, context: ConverterContext) => value.toISOString(),
+  deserialize: (value: string, context: ConverterContext) => new Date(value)
 };
 
 class Task {
@@ -403,8 +403,8 @@ const invalid = new RangedValue(100, 150);
 2. **Error Handling**: Consider adding error handling in converters for invalid data:
    ```typescript
    const safeConverter: Converter<Date, string> = {
-     serialize: (value: Date) => value.toISOString(),
-     deserialize: (value: string) => {
+     serialize: (value: Date, context: ConverterContext) => value.toISOString(),
+     deserialize: (value: string, context: ConverterContext) => {
        const date = new Date(value);
        if (isNaN(date.getTime())) {
          throw new Error(`Invalid date string: ${value}`);
