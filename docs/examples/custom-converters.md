@@ -193,8 +193,8 @@ import { Converter, JsonProperty, S7e } from 's7e';
 
 // Convert numbers to formatted strings
 const currencyConverter: Converter<number, string> = {
-  serialize: (value: number) => `$${value.toFixed(2)}`,
-  deserialize: (value: string) => parseFloat(value.replace('$', ''))
+  serialize: (value: number, context: ConverterContext) => `$${value.toFixed(2)}`,
+  deserialize: (value: string, context: ConverterContext) => parseFloat(value.replace('$', ''))
 };
 
 class Invoice {
@@ -226,8 +226,8 @@ When both `type` and `converter` are specified, the converter takes precedence:
 import { Converter, JsonProperty, S7e } from 's7e';
 
 const customConverter: Converter<string, number> = {
-  serialize: (value: string) => value.length,
-  deserialize: (value: number) => 'x'.repeat(value)
+  serialize: (value: string, context) => value.length,
+  deserialize: (value: number, context) => 'x'.repeat(value)
 };
 
 class Example {
