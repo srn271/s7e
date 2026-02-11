@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/srn271/s7e#readme",
   "devDependencies": {
-    "@eslint/js": "^9.31.0",
+    "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.2.2",
     "eslint": "^9.31.0",
     "globals": "^17.0.0",
