@@ -37,7 +37,7 @@ jobs:
         run: npm run build
 
       - name: Upload build artifacts
-        if: matrix.node-version == '20.x'
+        if: matrix.node-version == '24.x'
         uses: actions/upload-artifact@v7
         with:
           name: dist
@@ -54,7 +54,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           cache: 'npm'
 
       - name: Install dependencies
