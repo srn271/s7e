@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Node.js**: Version 24 or higher
+- **Node.js**: Version 22 or higher
 - **TypeScript**: Version 5.0 or higher
 - **Experimental Decorators**: Must be enabled in your TypeScript configuration
 
@@ -90,7 +90,7 @@ If everything is set up correctly, you should see output confirming the serializ
 **Decorators not working**
 - Ensure `experimentalDecorators` is set to `true` in `tsconfig.json`
 - Check that `emitDecoratorMetadata` is enabled
-- Verify your TypeScript version is 4.5 or higher
+- Verify your TypeScript version is 5.0 or higher
 
 **Runtime errors in browser**
 - Make sure your bundler is configured to handle TypeScript decorators
