@@ -2,6 +2,7 @@
   "name": "s7e",
   "version": "0.2.0",
   "description": "A TypeScript library for de-/serialization of TypeScript classes to and from JSON.",
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -9,8 +10,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "prepublishOnly": "npm run build",
@@ -43,13 +44,10 @@
     "jiti": "^2.5.1",
     "jsdom": "^29.0.1",
     "prettier": "^3.6.2",
-    "tsup": "^8.5.0",
+    "tsdown": "^0.21.9",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vitepress": "^1.6.3",
     "vitest": "^4.0.14"
-  },
-  "overrides": {
-    "esbuild": "^0.25.8"
   }
 }
