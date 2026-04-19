@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- **Node.js**: Version 16 or higher
-- **TypeScript**: Version 4.5 or higher
+- **Node.js**: Version 24 or higher
+- **TypeScript**: Version 5.0 or higher
 - **Experimental Decorators**: Must be enabled in your TypeScript configuration
 
 ## Package Installation
